@@ -1,0 +1,34 @@
+{# @var suggestions \AppBundle\Entity\Suggestion[] #}
+
+{% extends 'base.html.twig' %}
+
+{% block main %}
+
+        <section class="find-friends-user" csrf_token="{{ csrfToken }}">
+            {% for suggestion in suggestions %}
+
+                <div id="{{ suggestion.id }}">
+                    <div>
+                        <img src="uploads/profileImages/{{ suggestion.suggestUser.profileImage }}" style="width: 350px" />
+                    </div>
+                    <p>Email: {{ suggestion.suggestUser.email }}</p>
+                    <div>
+                        <button id="{{ suggestion.id }}" class="accept_suggestion">Accept</button>
+                        <button id="{{ suggestion.id }}" class="deny_suggestion">Deny</button>
+                    </div>
+                </div>
+
+            {% endfor %}
+        </section>
+
+{% endblock %}
+
+{% block stylesheets %}
+    <link href="node_modules/toastr/build/toastr.css" rel="stylesheet" />
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('node_modules/jquery/dist/jquery.js') }}"></script>
+    <script src="{{ asset('node_modules/toastr/build/toastr.min.js') }}"></script>
+    <script src="{{ asset('js/acceptSuggestion.js') }}"></script>
+{% endblock %}

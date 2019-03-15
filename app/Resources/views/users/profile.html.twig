@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block main %}
+
+        <div>
+            <img src="uploads/profileImages/{{ user.profileImage }}" style="width: 350px" />
+        </div>
+        <div>
+            <p>First Name: {{ user.firstName }}</p>
+            <p>Last Name: {{ user.lastName }}</p>
+            <p>Birth Day: {{ user.birthDate.format('Y-m-d') }}</p>
+            <p>Phone: {{ user.phone }}</p>
+            <p>Email: {{ user.email }}</p>
+        </div>
+
+{% endblock %}
+
+{% block stylesheets %}
+    <link href="node_modules/toastr/build/toastr.css" rel="stylesheet" />
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('node_modules/jquery/dist/jquery.js') }}"></script>
+    <script src="{{ asset('node_modules/toastr/build/toastr.min.js') }}"></script>
+    <script src="{{ asset('js/common.js') }}"></script>
+{% endblock %}
+

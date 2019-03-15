@@ -1,0 +1,77 @@
+{# @var users \AppBundle\Entity\User[] #}
+{% extends 'base.html.twig' %}
+
+{% block main %}
+
+    <section class="message_container">
+        <div class="current_user">
+            <img src="{{ asset('uploads/profileImages/0a6a00edea2ac99563b3b020d7a718b1.png') }}"/>
+            <h3>N/A</h3>
+        </div>
+
+        <div class="message_text">
+
+            <div class="spinner">
+                <div class="rect1"></div>
+                <div class="rect2"></div>
+                <div class="rect3"></div>
+                <div class="rect4"></div>
+                <div class="rect5"></div>
+            </div>
+
+            <div class="real_text_message_container">
+
+            </div>
+
+            <div class="sk-circle">
+                <div class="sk-circle1 sk-child"></div>
+                <div class="sk-circle2 sk-child"></div>
+                <div class="sk-circle3 sk-child"></div>
+                <div class="sk-circle4 sk-child"></div>
+                <div class="sk-circle5 sk-child"></div>
+                <div class="sk-circle6 sk-child"></div>
+                <div class="sk-circle7 sk-child"></div>
+                <div class="sk-circle8 sk-child"></div>
+                <div class="sk-circle9 sk-child"></div>
+                <div class="sk-circle10 sk-child"></div>
+                <div class="sk-circle11 sk-child"></div>
+                <div class="sk-circle12 sk-child"></div>
+            </div>
+        </div>
+
+        <div class="div_send_message">
+            <input class="send_message" type="text">
+            <button class="send_message_button">Send</button>
+        </div>
+
+        <input id="csrf_token" type="hidden" value="{{ csrfToken }}">
+
+    </section>
+
+{% endblock %}
+
+{% block aside %}
+    <aside>
+        {% for user in users %}
+            <div id="{{ user.id }}" class="friend_id">
+                <img src="uploads/profileImages/{{ user.profileImage }}" />
+                <p>{{ user.firstName }} {{ user.lastName }}</p>
+            </div>
+            {% else %}
+            <div>
+                <h3>You have not frieds</h3>
+            </div>
+        {% endfor %}
+    </aside>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('node_modules/jquery/dist/jquery.js') }}"></script>
+    <script src="{{ asset('node_modules/handlebars/dist/handlebars.js') }}"></script>
+    <script src="{{ asset('js/messanger.js') }}"></script>
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/messager.css') }}">
+{% endblock %}

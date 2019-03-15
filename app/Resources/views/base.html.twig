@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="stylesheet" href="{{ asset('css/common.css') }}">
+    </head>
+    <body>
+        {% block header %}
+            <header>
+                {% if app.user %}
+                    <a href="{{ path('home') }}">Home</a>
+                    <a href="{{ path('article_add') }}">Add Article</a>
+                    <a href="{{ path('user_profile') }}">Profile</a>
+                    <a href="{{ path('user_friends') }}">Find Friends</a>
+                    <a href="{{ path('message') }}">Messages</a>
+                    <a href="{{ path('suggestions_my_suggestions') }}">Suggestions</a>
+                    <a href="{{ path('security_logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ path('user_register') }}">Register </a>
+                    <a href="{{ path('security_login') }}"> Login </a>
+                {% endif %}
+            </header>
+        {% endblock %}
+        <main>
+            {% block main %}{% endblock %}
+            {% block aside %}{% endblock %}
+        </main>
+        {% block footer %}{% endblock %}
+        {% block javascripts %}
+            <script src="{{ asset('js/common.js') }}"></script>
+        {% endblock %}
+    </body>
+</html>

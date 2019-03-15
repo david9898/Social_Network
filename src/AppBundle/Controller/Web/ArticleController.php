@@ -1,0 +1,95 @@
+<?php
+
+namespace AppBundle\Controller\Web;
+
+use AppBundle\Entity\Article;
+use AppBundle\Form\ArticleType;
+use AppBundle\Service\FileUploader;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Routing\Annotation\Route;
+
+class ArticleController extends Controller
+{
+
+    /**
+     * @Route("/addArticle", name="article_add")
+     */
+    public function addArticle(Request $request, FileUploader $fileUploader)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $article = new Article();
+        $form = $this->createForm(ArticleType::class, $article);
+        $form->handleRequest($request);
+
+        if ( $form->isSubmitted() && $form->isValid() ) {
+
+            $file = $article->getImage();
+
+            $fileName = $fileUploader->uploadImage($file, $this->getParameter('articles_directory'));
+
+            $article->setImage($fileName);
+            $article->setAuthorId($this->getUser());
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($article);
+            $em->flush();
+
+            return $this->redirectToRoute('home');
+        }
+
+        return $this->render('articles/add_edit_article.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/editArticle/{id}", name="edit_article")
+     */
+    public function editArticle(Request $request, $id, FileUploader $fileUploader)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        /** @var Article $article */
+        $article = $this->getDoctrine()->getRepository(Article::class)->find($id);
+        $roles = $this->getUser()->getRoles();
+        if ( !in_array('ROLE_ADMIN', $roles) && $this->getUser()->getId() != $article->getAuthorId()->getId() ) {
+            throw new AccessDeniedHttpException('You don`t have access here!!!');
+        }
+        $oldImageName = $article->getImage();
+        $file = new UploadedFile('uploads/articleImages/' . $article->getImage(), $article->getImage());
+        $article->setImage($file);
+        $form = $this->createForm(ArticleType::class, $article);
+        $form->handleRequest($request);
+
+        if ( $form->isSubmitted() && $form->isValid() ) {
+
+            if ( $article->getImage() != null ) {
+
+                unlink('D:\\untitled\\web\\uploads\\articleImages\\' . $oldImageName);
+                /** @var  $newImage */
+                $newImage = $article->getImage();
+
+                $newImageName = $fileUploader->uploadImage($newImage, $this->getParameter('articles_directory'));
+
+                $article->setImage($newImageName);
+            }else {
+                $article->setImage($oldImageName);
+            }
+            $article->setAuthorId($this->getUser());
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($article);
+            $em->flush();
+
+            return $this->redirectToRoute('home');
+        }
+
+        return $this->render('articles/add_edit_article.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+}
