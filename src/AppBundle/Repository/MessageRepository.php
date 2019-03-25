@@ -14,7 +14,7 @@ class MessageRepository extends \Doctrine\ORM\EntityRepository
     public function getMessagesWithSomeone($myId, $otherUserId, $list = 0)
     {
 
-        $dql = 'SELECT m FROM AppBundle:Message m WHERE (m.acceptUser = :myId OR m.acceptUser = :otherUserId) AND 
+        $dql = 'SELECT m.id, m.content, s.id AS sendUserId, s.profileImage FROM AppBundle:Message m JOIN m.sendUser s WHERE (m.acceptUser = :myId OR m.acceptUser = :otherUserId) AND 
         (m.sendUser = :myId OR m.sendUser = :otherUserId) ORDER BY m.dateAdded DESC';
 
         $query = $this->getEntityManager()
@@ -23,6 +23,56 @@ class MessageRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('otherUserId', $otherUserId)
             ->setFirstResult($list)
             ->setMaxResults(21);
+
+        $this->seeAllMessagesWithUser($otherUserId);
+
+        return $query->getResult();
+    }
+
+    public function getMessageData($myId)
+    {
+        $dql = 'SELECT m.id, m.content, s.id AS sendUserId, s.profileImage FROM AppBundle:Message m  
+        JOIN m.sendUser s WHERE m.acceptUser = :myId AND m.isDelivered = 0';
+
+        $query = $this->getEntityManager()
+                    ->createQuery($dql)
+                    ->setParameter('myId', $myId);
+
+        $res = $query->getResult();
+
+        $this->deliverAllMessagesOnUser($myId);
+
+        return $res;
+    }
+
+    public function deliverAllMessagesOnUser($acceptUser)
+    {
+        $dql = 'UPDATE AppBundle:Message m SET m.isDelivered = 1 WHERE m.acceptUser = :acceptId AND m.isDelivered = 0';
+
+        $this->getEntityManager()
+            ->createQuery($dql)
+            ->setParameter('acceptId', $acceptUser)
+            ->execute();
+
+    }
+
+    public function seeAllMessagesWithUser($userId)
+    {
+        $dql = 'UPDATE AppBundle:Message m SET m.isSeen = 1 WHERE m.sendUser = :userId AND m.isSeen = 0';
+
+        $this->getEntityManager()
+            ->createQuery($dql)
+            ->setParameter('userId', $userId)
+            ->execute();
+    }
+
+    public function getAllMessagesWhereNotSee($myId)
+    {
+        $dql = 'SELECT m.id FROM AppBundle:Message m WHERE m.acceptUser = :myId AND m.isSeen = 0';
+
+        $query = $this->getEntityManager()
+                    ->createQuery($dql)
+                    ->setParameter('myId', $myId);
 
         return $query->getResult();
     }

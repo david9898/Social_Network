@@ -24,7 +24,8 @@ class SuggestionRepository extends \Doctrine\ORM\EntityRepository
 
     public function getMySendSuggestions($id)
     {
-        $dql = 'SELECT s, ss, sa FROM AppBundle:Suggestion s JOIN s.suggestUser ss JOIN s.acceptUser sa WHERE s.suggestUser = :id OR s.acceptUser = :id';
+        $dql = 'SELECT ss.id as suggestUser, sa.id as acceptUser FROM AppBundle:Suggestion s JOIN s.suggestUser ss 
+                JOIN s.acceptUser sa WHERE (s.suggestUser = :id OR s.acceptUser = :id) AND s.isDisabled = 0';
 
         $query = $this->getEntityManager()
             ->createQuery($dql)
@@ -35,7 +36,7 @@ class SuggestionRepository extends \Doctrine\ORM\EntityRepository
 
     public function seeAllSuggestions($id)
     {
-        $dql = 'SELECT s, su FROM AppBundle:Suggestion s JOIN s.suggestUser su 
+        $dql = 'SELECT s.id, su.profileImage, su.email FROM AppBundle:Suggestion s JOIN s.suggestUser su 
         WHERE s.acceptUser = :id AND s.isDisabled = 0';
 
         $query = $this->getEntityManager()

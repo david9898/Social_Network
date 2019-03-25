@@ -87,11 +87,12 @@ aside {
     overflow-x: hidden;
 }
 
-aside div {
+aside .friend_id {
     cursor: pointer;
     padding: 10px 0px;
     border-bottom: 1px solid black;
     display: flex;
+    justify-content: space-around;
 }
 
 aside div p {
@@ -100,10 +101,37 @@ aside div p {
 }
 
 aside div img {
-    margin-left: 50px;
+    margin-left: 30px;
     width: 70px;
     height: 70px;
     border-radius: 100%;
+}
+
+aside div .current_user_count_message {
+    text-align: center;
+}
+
+aside div .current_user_count_message span {
+    padding: 5px;
+    border: 1px solid blue;
+    border-radius: 100%;
+    background-color: blue;
+    color: white;
+}
+
+aside .search_friends .search_friends_input {
+    width: 200px;
+    margin: 15px 0px;
+}
+
+aside .search_friends {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid black;
+}
+
+aside .search_friends_container {
+    display: none;
 }
 
 .sk-circle {

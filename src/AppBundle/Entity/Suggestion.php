@@ -31,7 +31,7 @@ class Suggestion
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", inversedBy="suggestions")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", inversedBy="sendSuggestions")
      * @ORM\JoinColumn(name="suggest_user", referencedColumnName="id")
      */
     private $suggestUser;
@@ -39,7 +39,7 @@ class Suggestion
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", inversedBy="acceptSuggestions")
      * @ORM\JoinColumn(name="accept_user", referencedColumnName="id")
      */
     private $acceptUser;

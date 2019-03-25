@@ -9,9 +9,9 @@
 
                 <div id="{{ suggestion.id }}">
                     <div>
-                        <img src="uploads/profileImages/{{ suggestion.suggestUser.profileImage }}" style="width: 350px" />
+                        <img src="uploads/profileImages/{{ suggestion.profileImage }}" style="width: 350px" />
                     </div>
-                    <p>Email: {{ suggestion.suggestUser.email }}</p>
+                    <p>Email: {{ suggestion.email }}</p>
                     <div>
                         <button id="{{ suggestion.id }}" class="accept_suggestion">Accept</button>
                         <button id="{{ suggestion.id }}" class="deny_suggestion">Deny</button>

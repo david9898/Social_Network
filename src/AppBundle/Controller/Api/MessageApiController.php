@@ -105,11 +105,44 @@ class MessageApiController extends Controller
             $responce = [];
             $responce['status'] = 'success';
             $responce['currentId'] = $currentId;
+            $responce['otherUser'] = $userId;
             $responce['messages'] = $messages;
 
             return $this->JsonResponce($responce);
         }
 
+    }
+
+    /**
+     * @Route("/getMessageData/{csrfToken}/{currentUser}")
+     */
+    public function getMessageData($csrfToken, $currentUser)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $session = new Session();
+        $realCsrfToken = $session->get('csrfToken');
+
+        if ( $realCsrfToken === $csrfToken ) {
+            $currentId = $this->getUser()->getId();
+
+            if ( $currentUser !== 'undefined' ) {
+                $this->getDoctrine()
+                    ->getRepository(Message::class)
+                    ->seeAllMessagesWithUser($currentUser);
+
+            }
+
+            $data = $this->getDoctrine()
+                        ->getRepository(Message::class)
+                        ->getMessageData($currentId);
+
+            $responce = [];
+            $responce['data'] = $data;
+            $responce['status'] = 'success';
+
+            return $this->JsonResponce($responce);
+        }
     }
 
     private function JsonResponce($array)

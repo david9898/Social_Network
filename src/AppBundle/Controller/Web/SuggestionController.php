@@ -4,7 +4,6 @@ namespace AppBundle\Controller\Web;
 
 use AppBundle\Entity\Suggestion;
 use AppBundle\Entity\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
@@ -43,18 +42,24 @@ class SuggestionController extends Controller
      */
     public function findFriends()
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         $session = new Session();
 
         $csrfToken = bin2hex(random_bytes(32));
 
         $session->set('csrf_token', $csrfToken);
 
+        $currentId = $this->getUser()->getId();
+
         /** @var User $currentUser */
         $currentUser = $this->getDoctrine()
                             ->getRepository(User::class)
-                            ->getFullUser($this->getUser()->getId());
+                            ->getFullUser($currentId);
 
-        $currentId = $currentUser->getId();
+        $suggestions = $this->getDoctrine()
+                            ->getRepository(Suggestion::class)
+                            ->getMySendSuggestions($currentId);
 
         $friends = $currentUser->getMyFriends();
 
@@ -72,21 +77,11 @@ class SuggestionController extends Controller
             $friendsId[] = $friend->getId();
         }
 
-        $suggestions = $this->getDoctrine()
-                            ->getRepository(Suggestion::class)
-                            ->getMySendSuggestions($currentId);
-
         foreach ($suggestions as $suggestion) {
-            /** @var Suggestion $suggestion */
-            if ( $suggestion->getAcceptUser()->getId() != $currentId ) {
-                $friendsId[] = $suggestion->getAcceptUser()->getId();
-            }
-        }
-
-        foreach ($suggestions as $suggestion) {
-            /** @var Suggestion $suggestion */
-            if ( $suggestion->getSuggestUser()->getId() !== $currentId ) {
-                $friendsId[] = $suggestion->getSuggestUser()->getId();
+            if ( $suggestion['suggestUser'] === $currentId ) {
+                $friendsId[] = $suggestion['acceptUser'];
+            }else {
+                $friendsId[] = $suggestion['suggestUser'];
             }
         }
 
@@ -98,7 +93,6 @@ class SuggestionController extends Controller
         return $this->render('users/findFriends.html.twig', [
             'friends' => $users,
             'csrfToken' => $csrfToken,
-            'suggestions' => $suggestions,
         ]);
     }
 }

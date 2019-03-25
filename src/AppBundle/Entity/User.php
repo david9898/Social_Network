@@ -108,7 +108,28 @@ class User implements UserInterface
      *
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Suggestion", mappedBy="suggestUser")
      */
-    private $suggestions;
+    private $sendSuggestions;
+
+    /**
+     * @var Suggestion[]
+     *
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Suggestion", mappedBy="acceptUser")
+     */
+    private $acceptSuggestions;
+
+    /**
+     * @var Message[]
+     *
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Message", mappedBy="sendUser")
+     */
+    private $sendMessages;
+
+    /**
+     * @var Message[]
+     *
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Message", mappedBy="acceptUser")
+     */
+    private $acceptMessages;
 
     /**
      * @var Role[]
@@ -126,8 +147,11 @@ class User implements UserInterface
         $this->isActive = true;
         $this->friendsWithMe = new ArrayCollection();
         $this->myFriends = new ArrayCollection();
-        $this->suggestions = new ArrayCollection();
+        $this->sendSuggestions = new ArrayCollection();
         $this->roles = new ArrayCollection();
+        $this->sendMessages = new ArrayCollection();
+        $this->acceptMessages = new ArrayCollection();
+        $this->acceptSuggestions = new ArrayCollection();
     }
 
 
@@ -370,22 +394,6 @@ class User implements UserInterface
     }
 
     /**
-     * @return Suggestion[]
-     */
-    public function getSuggestions()
-    {
-        return $this->suggestions;
-    }
-
-    /**
-     * @param Suggestion[] $suggestions
-     */
-    public function setSuggestions($suggestions)
-    {
-        $this->suggestions = $suggestions;
-    }
-
-    /**
      * @return User[]
      */
     public function getMyFriends()
@@ -443,6 +451,70 @@ class User implements UserInterface
         }
 
         return $arr;
+    }
+
+    /**
+     * @return Message[]
+     */
+    public function getSendMessages()
+    {
+        return $this->sendMessages;
+    }
+
+    /**
+     * @param Message[] $sendMessages
+     */
+    public function setSendMessages($sendMessages)
+    {
+        $this->sendMessages = $sendMessages;
+    }
+
+    /**
+     * @return Message[]
+     */
+    public function getAcceptMessages()
+    {
+        return $this->acceptMessages;
+    }
+
+    /**
+     * @param Message[] $acceptMessages
+     */
+    public function setAcceptMessages($acceptMessages)
+    {
+        $this->acceptMessages = $acceptMessages;
+    }
+
+    /**
+     * @return Suggestion[]
+     */
+    public function getSendSuggestions()
+    {
+        return $this->sendSuggestions;
+    }
+
+    /**
+     * @param Suggestion[] $sendSuggestions
+     */
+    public function setSendSuggestions($sendSuggestions)
+    {
+        $this->sendSuggestions = $sendSuggestions;
+    }
+
+    /**
+     * @return Suggestion[]
+     */
+    public function getAcceptSuggestions()
+    {
+        return $this->acceptSuggestions;
+    }
+
+    /**
+     * @param Suggestion[] $acceptSuggestions
+     */
+    public function setAcceptSuggestions($acceptSuggestions)
+    {
+        $this->acceptSuggestions = $acceptSuggestions;
     }
 
 }

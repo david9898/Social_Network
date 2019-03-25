@@ -51,25 +51,40 @@
 {% endblock %}
 
 {% block aside %}
+
     <aside>
-        {% for user in users %}
-            <div id="{{ user.id }}" class="friend_id">
-                <img src="uploads/profileImages/{{ user.profileImage }}" />
-                <p>{{ user.firstName }} {{ user.lastName }}</p>
-            </div>
-            {% else %}
-            <div>
-                <h3>You have not frieds</h3>
-            </div>
-        {% endfor %}
+        <div class="search_friends">
+            <input type="text" class="search_friends_input">
+        </div>
+        <div class="friends_container">
+            {% for user in users %}
+                <div id="{{ user.id }}" class="friend_id">
+                    <img src="uploads/profileImages/{{ user.profileImage }}" />
+                    <p class="full_name">{{ user.firstName }} {{ user.lastName }}</p>
+                    {% if user.id in messages|keys %}
+                        <p class="current_user_count_message"><span>{{ messages[user.id] }}</span></p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div>
+                    <h3>You have not friends</h3>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="search_friends_container">
+
+        </div>
     </aside>
 
 {% endblock %}
 
 {% block javascripts %}
+
     <script src="{{ asset('node_modules/jquery/dist/jquery.js') }}"></script>
     <script src="{{ asset('node_modules/handlebars/dist/handlebars.js') }}"></script>
     <script src="{{ asset('js/messanger.js') }}"></script>
+
 {% endblock %}
 
 {% block stylesheets %}

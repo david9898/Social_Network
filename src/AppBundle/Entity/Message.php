@@ -52,7 +52,7 @@ class Message
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", inversedBy="id")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", inversedBy="acceptMessages")
      * @ORM\JoinColumn(name="accept_user", referencedColumnName="id")
      */
     private $acceptUser;
@@ -60,7 +60,7 @@ class Message
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", inversedBy="id")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", inversedBy="sendMessages")
      * @ORM\JoinColumn(name="send_user", referencedColumnName="id")
      */
     private $sendUser;

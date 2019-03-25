@@ -53,7 +53,7 @@ class UserController extends Controller
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $user = $this->getDoctrine()->getRepository(User::class)->find($this->getUser()->getId());
+        $user = $this->getUser();
 
         return $this->render('users/profile.html.twig', [
             'user' => $user

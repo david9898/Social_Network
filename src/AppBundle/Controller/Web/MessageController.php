@@ -24,16 +24,31 @@ class MessageController extends Controller
 
         $session->set('csrfToken', $csrfToken);
 
-        /** @var User $user */
-        $user = $this->getDoctrine()
-                        ->getRepository(User::class)
-                        ->getFullUser($this->getUser()->getId());
+        $currentId = $this->getUser()->getId();
 
-        $friends = $user->getAllFriends();
+        $friends = $this->getDoctrine()
+            ->getRepository(User::class)
+            ->getUserWithFriendsAndMessages($currentId);
+
+
+        /** @var Message[] $messages */
+        $messages = $this->getDoctrine()
+                        ->getRepository(Message::class)
+                        ->getAllMessagesWhereNotSee($currentId);
+
+        $countMessages = [];
+        foreach ($messages as $message) {
+            if ( array_key_exists($message->getSendUser()->getId(), $countMessages) ) {
+                $countMessages[$message->getSendUser()->getId()]++;
+            }else {
+                $countMessages[$message->getSendUser()->getId()] = 1;
+            }
+        }
 
         return $this->render('messages/showMessages.html.twig', [
             'users' => $friends,
             'csrfToken' => $csrfToken,
+            'messages' => $countMessages,
         ]);
     }
 }

@@ -55,12 +55,25 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
 
     public function getFullUser($id)
     {
-        $dql = 'SELECT u, um, uf FROM AppBundle:User u LEFT JOIN u.myFriends um LEFT JOIN u.friendsWithMe uf WHERE u.id = :id';
+        $dql = 'SELECT u, uf, um FROM AppBundle:User u JOIN u.myFriends um JOIN u.friendsWithMe uf WHERE u.id = :id';
 
         $query = $this->getEntityManager()
                     ->createQuery($dql)
                     ->setParameter('id', $id);
 
         return $query->getOneOrNullResult();
+    }
+
+    public function getUserWithFriendsAndMessages($id)
+    {
+        $dql = 'SELECT uf.id, uf.profileImage, uf.firstName, uf.lastName, mf.id, mf.profileImage, mf.firstName, mf.lastName
+                FROM AppBundle:User u LEFT JOIN u.friendsWithMe uf LEFT JOIN u.myFriends mf
+                WHERE u.id = :id';
+
+        $query = $this->getEntityManager()
+                        ->createQuery($dql)
+                        ->setParameter('id', $id);
+
+        return $query->getResult();
     }
 }
