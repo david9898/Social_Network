@@ -32,7 +32,8 @@ framework:
     assets: ~
     php_errors:
         log: true
-
+    templating:
+        engines: ['twig']
 # Twig Configuration
 twig:
     debug: '%kernel.debug%'
@@ -72,3 +73,23 @@ sensio_framework_extra:
    router:
         annotations: false
 
+gos_web_socket:
+    client:
+        firewall: [ main ]
+
+#    pushers:
+#        wamp:
+#            host: 127.0.0.1
+#            port: 99
+    server:
+        port: 99
+        host: 127.0.0.1
+        router:
+            resources:
+                - '@AppBundle/Resources/config/pubsub/routing.yml'
+
+assetic:
+    debug:          '%kernel.debug%'
+    use_controller: '%kernel.debug%'
+    filters:
+        cssrewrite: ~

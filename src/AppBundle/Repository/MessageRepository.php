@@ -68,11 +68,13 @@ class MessageRepository extends \Doctrine\ORM\EntityRepository
 
     public function getAllMessagesWhereNotSee($myId)
     {
-        $dql = 'SELECT m.id FROM AppBundle:Message m WHERE m.acceptUser = :myId AND m.isSeen = 0';
+        $dql = 'SELECT m FROM AppBundle:Message m WHERE m.acceptUser = :myId AND m.isSeen = 0';
 
         $query = $this->getEntityManager()
                     ->createQuery($dql)
                     ->setParameter('myId', $myId);
+
+        $this->deliverAllMessagesOnUser($myId);
 
         return $query->getResult();
     }

@@ -26,10 +26,12 @@ class MessageController extends Controller
 
         $currentId = $this->getUser()->getId();
 
-        $friends = $this->getDoctrine()
+        /** @var User $user */
+        $user = $this->getDoctrine()
             ->getRepository(User::class)
-            ->getUserWithFriendsAndMessages($currentId);
+            ->getFullUser($currentId);
 
+        $friends = $this->mergeArrays([$user->getFriendsWithMe(), $user->getMyFriends()]);
 
         /** @var Message[] $messages */
         $messages = $this->getDoctrine()
@@ -50,5 +52,18 @@ class MessageController extends Controller
             'csrfToken' => $csrfToken,
             'messages' => $countMessages,
         ]);
+    }
+
+    private function mergeArrays(array $arr)
+    {
+        $array = [];
+
+        foreach ($arr as $item) {
+            foreach ($item as $value) {
+                $array[] = $value;
+            }
+        }
+
+        return $array;
     }
 }

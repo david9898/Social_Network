@@ -8,7 +8,7 @@
 
 namespace AppBundle\Service;
 
-
+use Intervention\Image\ImageManager;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -20,7 +20,13 @@ class FileUploader
         $fileName = md5(uniqid()). '.' . $uploadedFile->guessExtension();
 
         try {
-            $uploadedFile->move($targetDirectory, $fileName);
+            $image = new ImageManager();
+
+            $image
+                ->make($uploadedFile->getRealPath())
+                ->resize(1024, 768)
+                ->save($targetDirectory . '/' . $fileName);
+
         }catch (FileException $exception) {
 
         }

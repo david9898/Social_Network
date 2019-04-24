@@ -196,6 +196,7 @@ function showMoreOnScroll(res, myMessage, yourMessage) {
 }
 
 function getMessages(csrfToken, myMessage, yourMessage, friendTemplate) {
+    let audio = new Audio('sounds/musical_keyboard_key_flick_spring_up.mp3')
     setInterval(function () {
         let currentUser = $('.current_user').attr('acceptUser')
 
@@ -212,6 +213,7 @@ function getMessages(csrfToken, myMessage, yourMessage, friendTemplate) {
             let data = realData['data']
 
             if ( data.length > 0 ) {
+                audio.play()
                 for (let msg of data) {
                     if ( msg['sendUserId'] == currentUser ) {
                         let template = Handlebars.compile(yourMessage)
