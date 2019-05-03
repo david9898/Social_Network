@@ -25,7 +25,7 @@ framework:
     trusted_hosts: ~
     session:
         # https://symfony.com/doc/current/reference/configuration/framework.html#handler-id
-        handler_id: session.handler.native_file
+        handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
         save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
     fragments: ~
     http_method_override: true
@@ -73,23 +73,15 @@ sensio_framework_extra:
    router:
         annotations: false
 
-gos_web_socket:
-    client:
-        firewall: [ main ]
-
-#    pushers:
-#        wamp:
-#            host: 127.0.0.1
-#            port: 99
-    server:
-        port: 99
-        host: 127.0.0.1
-        router:
-            resources:
-                - '@AppBundle/Resources/config/pubsub/routing.yml'
-
 assetic:
     debug:          '%kernel.debug%'
     use_controller: '%kernel.debug%'
     filters:
         cssrewrite: ~
+
+services:
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
+        public: false
+        arguments:
+            - 'mysql:host=%database_host%;port=%database_port%;dbname=%database_name%'
+            - { db_username: '%database_user%', db_password: '%database_password%' }

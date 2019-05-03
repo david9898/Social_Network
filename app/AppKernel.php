@@ -18,8 +18,6 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new AppBundle\AppBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
-            new Gos\Bundle\WebSocketBundle\GosWebSocketBundle(),
-            new Gos\Bundle\PubSubRouterBundle\GosPubSubRouterBundle(),
             new Symfony\Bundle\AsseticBundle\AsseticBundle(),
         ];
 

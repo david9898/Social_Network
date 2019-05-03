@@ -34,3 +34,19 @@ services:
     #     arguments:
     #         $someArgument: 'some_value'
 
+    Redis:
+        class: Redis
+        calls:
+            - method: connect
+              arguments:
+                  - '127.0.0.1'
+                  - '6379'
+            # If you need key prefix
+            # - method: setOption
+            #   arguments:
+            #       - !php/const Redis::OPT_PREFIX
+            #       - 'my_prefix'
+
+        Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+            arguments:
+                - '@Redis'
