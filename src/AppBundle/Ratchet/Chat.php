@@ -25,6 +25,7 @@ class Chat implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg) {
         $myId = $from->Session->get('currentId');
         $msgContent = json_decode($msg, true);
+        print_r($msgContent);
         switch ( $msgContent['command'] ) {
             case 'addMessage':
                 $this->addMessage($myId, $msgContent, $from);
@@ -40,6 +41,14 @@ class Chat implements MessageComponentInterface
 
             case 'seeCertainMessage':
                 $this->getCertainMessage($myId, $msgContent);
+                break;
+
+            case 'addSuggestion':
+                $this->addSuggestion($msgContent);
+                break;
+
+            case 'searchFriends':
+                $this->searchFriends($from, $msg);
                 break;
 
         }
@@ -60,7 +69,7 @@ class Chat implements MessageComponentInterface
 
     private function addMessage($myId, $msgContent, $conn) {
         $id                     = $this->insertMessage($myId, $msgContent);
-        $randomId               = $msgContent['id'];
+        $randomId               = htmlspecialchars($msgContent['id']);
         $msgContent['id']       = $id;
         $msgContent['randomId'] = $randomId;
         $msgContent['messageStatus'] = 'onlySaved';
@@ -78,8 +87,8 @@ class Chat implements MessageComponentInterface
     private function insertMessage($myId, $msg)
     {
         $acceptUser = htmlspecialchars($msg['acceptUser']);
-        $dateNow = htmlspecialchars(date('Y-m-d H:i:s'));
-        $content = htmlspecialchars($msg['content']);
+        $dateNow    = htmlspecialchars(date('Y-m-d H:i:s'));
+        $content    = htmlspecialchars($msg['content']);
         $sql = 'INSERT INTO messages (`accept_user`, `send_user`, `content`, `date_added`, `is_delivered`, `is_seen`)
                 VALUES (?, ?, ?, ?, ?, ?)';
 
@@ -95,9 +104,9 @@ class Chat implements MessageComponentInterface
 
     private function seenMessage($msg)
     {
-        $msgId      = $msg['id'];
-        $sendUser   = $msg['sendUser'];
-        $acceptUser = $msg['acceptUser'];
+        $msgId      = htmlspecialchars($msg['id']);
+        $sendUser   = htmlspecialchars($msg['sendUser']);
+        $acceptUser = htmlspecialchars($msg['acceptUser']);
         $sql        = 'UPDATE messages SET is_seen = 1 WHERE id = ?';
 
         $stmt = $this->pdo->prepare($sql);
@@ -117,7 +126,7 @@ class Chat implements MessageComponentInterface
 
     private function seeMessagesBetweenUsers($myId, $msg)
     {
-        $otherId = $msg['otherId'];
+        $otherId = htmlspecialchars($msg['otherId']);
 
         if ( isset($this->clients[$otherId]) ) {
             $this->clients[$otherId]->send(json_encode([
@@ -129,8 +138,8 @@ class Chat implements MessageComponentInterface
 
     private function getCertainMessage($myId, $msg)
     {
-        $msgId = $msg['id'];
-        $currentUser = $msg['currentIdOnMessenger'];
+        $msgId       = htmlspecialchars($msg['id']);
+        $currentUser = htmlspecialchars($msg['currentIdOnMessenger']);
 
         $sql = 'SELECT * FROM messages WHERE id = ?';
 
@@ -171,5 +180,29 @@ class Chat implements MessageComponentInterface
                 $this->clients[$myId]->send(json_encode($arr));
             }
         }
+    }
+
+    private function addSuggestion($msg)
+    {
+        $targetId = htmlspecialchars($msg['otherId']);
+
+        if ( isset($this->clients[$targetId]) ) {
+            $this->clients[$targetId]->send(json_encode([
+                'command' => 'addSuggestion'
+            ]));
+        }
+    }
+
+    private function searchFriends($conn, $msg)
+    {
+        $name = htmlspecialchars($msg['name']);
+
+        $sql = 'SELECT id, profile_image, full_name FROM users WHERE full_name LIKE :name LIMIT 20';
+
+        $query = $this->pdo->prepare($sql);
+        $query->execute([$name]);
+        $data = $query->fetchAll(\PDO::FETCH_ASSOC);
+
+        $conn->send(json_encode($data));
     }
 }

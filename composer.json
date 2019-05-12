@@ -24,6 +24,7 @@
         "cboden/ratchet": "^0.4.1",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/orm": "^2.5",
+        "guzzlehttp/guzzle": "^6.3",
         "incenteev/composer-parameter-handler": "^2.0",
         "intervention/image": "^2.4",
         "jms/serializer-bundle": "^3.1",
@@ -40,7 +41,7 @@
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",
-        "symfony/phpunit-bridge": "^3.0"
+        "symfony/phpunit-bridge": "^4.2"
     },
     "scripts": {
         "symfony-scripts": [

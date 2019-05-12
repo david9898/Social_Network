@@ -59,7 +59,11 @@ function addSuggestion() {
             }
         }).then((res) => {
             let respoce = JSON.parse(res);
-
+            let obj = {
+                'command': 'addSuggestion',
+                'otherId': id
+            }
+            webSocket.send(JSON.stringify(obj))
             if ( respoce['status'] == 'success' ) {
                 $(this).css('display', 'none')
                 return toastr.success('Add was success')

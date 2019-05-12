@@ -76,4 +76,15 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
 
         return $query->getResult();
     }
+
+    public function getLastUserId()
+    {
+        $dql = 'SELECT u.id FROM AppBundle:User u ORDER BY u.id DESC';
+
+        $query = $this->getEntityManager()
+                        ->createQuery($dql)
+                        ->setMaxResults(1);
+
+        return $query->getOneOrNullResult();
+    }
 }

@@ -8,6 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -27,6 +28,8 @@ class UserApiController extends Controller
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        $session = new Session();
+
         $CU = $this->getDoctrine()
                     ->getRepository(User::class)
                     ->getCountUsers();
@@ -40,21 +43,7 @@ class UserApiController extends Controller
 
         $currentId = $currentUser->getId();
 
-        $friends = $currentUser->getMyFriends();
-
-        $friendsWithMe = $currentUser->getFriendsWithMe();
-
-        $friendsId = [];
-
-        $friendsId[] = $this->getUser()->getId();
-
-        foreach ($friendsWithMe as $friend) {
-            $friendsId[] = $friend->getId();
-        }
-
-        foreach ($friends as $friend) {
-            $friendsId[] = $friend->getId();
-        }
+        $friendsId = $session->get('friends');
 
         $suggestions = $this->getDoctrine()
                             ->getRepository(Suggestion::class)
@@ -69,7 +58,7 @@ class UserApiController extends Controller
 
         foreach ($suggestions as $suggestion) {
             /** @var Suggestion $suggestion */
-            if ( $suggestion->getSuggestUser()->getId() !== $currentId ) {
+            if ( $suggestion->getSuggestUser()->getId() != $currentId ) {
                 $friendsId[] = $suggestion->getSuggestUser()->getId();
             }
         }
@@ -96,5 +85,12 @@ class UserApiController extends Controller
 
         return new JsonResponse($json,
                     Response::HTTP_OK, array('content-type' => 'application/json'));
+    }
+
+    private function JsonResponce($array)
+    {
+        $serializer = $this->container->get('jms_serializer');
+        $json = $serializer->serialize($array, 'json');
+        return new JsonResponse($json, Response::HTTP_OK, array('content-type' => 'application/json'));
     }
 }

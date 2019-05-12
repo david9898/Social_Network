@@ -60,7 +60,7 @@ class SuggestionRepository extends \Doctrine\ORM\EntityRepository
 
     public function getCountSuggestions($id)
     {
-        $dql = 'SELECT COUNT(s) FROM AppBundle:Suggestion s WHERE s.acceptUser = :id OR s.suggestUser = :id';
+        $dql = 'SELECT COUNT(s) FROM AppBundle:Suggestion s WHERE s.suggestUser = :id AND s.isDisabled = 0';
 
         $query = $this->getEntityManager()
                     ->createQuery($dql)
@@ -89,5 +89,30 @@ class SuggestionRepository extends \Doctrine\ORM\EntityRepository
 
         return $query->getSingleResult();
 
+    }
+
+    public function getSendAndAcceptSuggestions($id)
+    {
+        $dql = 'SELECT s.id, ss.id as suggestUser, sa.id acceptUser FROM AppBundle:Suggestion s JOIN s.suggestUser ss JOIN s.acceptUser sa
+        WHERE (s.suggestUser = :id OR s.acceptUser = :id) AND s.isDisabled = 0';
+
+        $query = $this->getEntityManager()
+                    ->createQuery($dql)
+                    ->setParameter('id', $id);
+
+        return $query->getResult();
+    }
+
+    public function checkIfExistSuggestion($myId, $targetUserId)
+    {
+        $dql = 'SELECT s.id FROM AppBundle:Suggestion s 
+        WHERE (s.suggestUser = :id OR s.acceptUser = :id) AND (s.suggestUser = :myId OR s.acceptUser = :myId) AND s.isDisabled = 0';
+
+        $query = $this->getEntityManager()
+                    ->createQuery($dql)
+                    ->setParameter('id', $targetUserId)
+                    ->setParameter('myId', $myId);
+
+        return $query->getOneOrNullResult();
     }
 }

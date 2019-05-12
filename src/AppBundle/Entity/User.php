@@ -71,6 +71,13 @@ class User implements UserInterface
     private $isActive;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="full_name", type="string", length=255)
+     */
+    private $fullName;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="birthDate", type="date")
@@ -247,6 +254,7 @@ class User implements UserInterface
     {
         $this->getMyFriends()[] = $id;
     }
+
     /**
      * Get lastName
      *
@@ -515,6 +523,22 @@ class User implements UserInterface
     public function setAcceptSuggestions($acceptSuggestions)
     {
         $this->acceptSuggestions = $acceptSuggestions;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullName(): string
+    {
+        return $this->fullName;
+    }
+
+    /**
+     * @param string $fullName
+     */
+    public function setFullName(string $fullName): void
+    {
+        $this->fullName = $fullName;
     }
 
 }

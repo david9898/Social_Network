@@ -117,5 +117,23 @@ class Suggestion
     {
         $this->acceptUser = $acceptUser;
     }
+
+    /**
+     * @return bool
+     */
+    public function isDisabled()
+    {
+        return $this->isDisabled;
+    }
+
+    /**
+     * @param bool $isDisabled
+     */
+    public function setIsDisabled(bool $isDisabled)
+    {
+        $this->isDisabled = $isDisabled;
+    }
+
+
 }
 

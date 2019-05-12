@@ -1,55 +1,55 @@
-$(document).ready(async () => {
+	$(document).ready(async () => {
     let csrfToken = $('#csrf_token').val()
     let myMessageTemplate = await $.get('TemplatesHbs/myMessage.hbs')
     let yourMessageTemplate = await $.get('TemplatesHbs/yourMessage.hbs')
     let friendTemplate = await $.get('TemplatesHbs/friendTemplate.hbs')
 
-    // sendMessage(csrfToken, myMessageTemplate)
+    sendMessage(csrfToken, myMessageTemplate)
     changeCurrentFriends(csrfToken, myMessageTemplate, yourMessageTemplate)
-    // getMessages(csrfToken, myMessageTemplate, yourMessageTemplate, friendTemplate)
+    getMessages(csrfToken, myMessageTemplate, yourMessageTemplate, friendTemplate)
     searchInFriends(friendTemplate, csrfToken, myMessageTemplate, yourMessageTemplate)
 
 })
 
-// function sendMessage(csrfToken, myMessage) {
-//     $('.send_message_button').on('click', function () {
-//         let acceptUser = $('.message_text').attr('acceptUser')
-//         let content = $('.send_message').val()
-//
-//         if ( content !== '' ) {
-//             let data = {
-//                 'csrfToken': csrfToken,
-//                 'acceptUser': acceptUser,
-//                 'content': content
-//             }
-//
-//             $.ajax({
-//                 url: 'api/sendMessage',
-//                 type: 'POST',
-//                 data: JSON.stringify(data),
-//                 headers: {
-//                     'Content-Type': 'application/json'
-//                 }
-//             }).then(() => {
-//                 $('.be_first_to_message').empty()
-//
-//                 let obj = {
-//                     'content': content
-//                 }
-//                 let template = Handlebars.compile(myMessage)
-//                 let html = template(obj)
-//                 $('.message_text .real_text_message_container').append(html)
-//
-//                 let scrollHeight = $('.message_container .message_text')[0].scrollHeight
-//                 $('.message_text').animate({scrollTop: scrollHeight})
-//                 $('.send_message').val('')
-//
-//             }).catch((err) => {
-//
-//             })
-//         }
-//     })
-// }
+function sendMessage(csrfToken, myMessage) {
+    $('.send_message_button').on('click', function () {
+        let acceptUser = $('.message_text').attr('acceptUser')
+        let content = $('.send_message').val()
+
+        if ( content !== '' ) {
+            let data = {
+                'csrfToken': csrfToken,
+                'acceptUser': acceptUser,
+                'content': content
+            }
+
+            $.ajax({
+                url: 'api/sendMessage',
+                type: 'POST',
+                data: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => {
+                $('.be_first_to_message').empty()
+
+                let obj = {
+                    'content': content
+                }
+                let template = Handlebars.compile(myMessage)
+                let html = template(obj)
+                $('.message_text .real_text_message_container').append(html)
+
+                let scrollHeight = $('.message_container .message_text')[0].scrollHeight
+                $('.message_text').animate({scrollTop: scrollHeight})
+                $('.send_message').val('')
+
+            }).catch((err) => {
+
+            })
+        }
+    })
+}
 
 function changeCurrentFriends(csrfToken, myMessage, yourMessage) {
     let xhr = new XMLHttpRequest()
@@ -57,7 +57,7 @@ function changeCurrentFriends(csrfToken, myMessage, yourMessage) {
     $('.friend_id').on('click', function () {
         $('.spinner').css('display', 'none')
         sessionStorage.setItem('haveMore', 'false')
-        let currentUser = $('.current_user').attr('acceptuser')
+        let currentUser = $('.current_user').attr('acceptUser')
         let id = $(this).attr('id')
         let data = null
 
@@ -85,26 +85,8 @@ function changeCurrentFriends(csrfToken, myMessage, yourMessage) {
 
         xhr.onload = function () {
             if ( xhr.status === 200 ) {
-                let obj = {
-                    'command': 'seeMessageBetweenUsers',
-                    'otherId': $('.current_user').attr('acceptuser')
-                }
                 data = JSON.parse(xhr.responseText)
-                webSocket.send(JSON.stringify(obj))
                 renderMessagesWithUser(data, csrfToken, myMessage, yourMessage)
-                let parcedData = JSON.parse(data)
-                if ( parcedData['responce'] !== 'none' ) {
-                    let lastClass = $('.real_text_message_container').children().last().attr('class')
-                    if ( lastClass === 'div_message_mine' ) {
-                        let lastId = $('.real_text_message_container').children().last().attr('id')
-                        let objLastMessage = {
-                            'command': 'seeCertainMessage',
-                            'id': lastId,
-                            'currentIdOnMessenger': $('.current_user').attr('acceptuser')
-                        }
-                        webSocket.send(JSON.stringify(objLastMessage))
-                    }
-                }
             }
         }
 

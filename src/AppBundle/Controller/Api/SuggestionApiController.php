@@ -4,6 +4,7 @@ namespace AppBundle\Controller\Api;
 
 use AppBundle\Entity\Suggestion;
 use AppBundle\Entity\User;
+use AppBundle\Service\SuggestionService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,6 +20,12 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SuggestionApiController extends Controller
 {
+    private $suggestionService;
+
+    public function __construct(SuggestionService $service)
+    {
+        $this->suggestionService = $service;
+    }
 
     /**
      * @Route("/addSuggestion")
@@ -28,48 +35,18 @@ class SuggestionApiController extends Controller
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $session = new Session();
-
-        $content = $request->getContent();
-        $realData = json_decode($content, true);
-
+        $session   = new Session();
+        $content   = $request->getContent();
+        $realData  = json_decode($content, true);
         $csrfToken = $session->get('csrf_token');
+        $currentId = $session->get('currentId');
+        $friends   = $session->get('friends');
 
-        $requestedToken = $realData['csrf_token'];
 
-        if ( $csrfToken == $requestedToken ) {
-            $count = $this->getDoctrine()
-                            ->getRepository(Suggestion::class)
-                            ->getCountSuggestions($this->getUser()->getId());
+        $responce = $this->suggestionService
+                            ->validateSuggestion($currentId, $realData, $csrfToken, $friends);
 
-            if ( (int)$count[1] >= 50 ) {
-                $responce = ['status' => 'error', 'count' => $count];
-                $serializer = $this->container->get('jms_serializer');
-                $json = $serializer->serialize($responce, 'json');
-                return new JsonResponse($json, Response::HTTP_OK, array('content-type' => 'application/json'));
-            }
-
-            $targetUser = (int)$realData['target_user'];
-
-            $suggestion = new Suggestion();
-
-            $suggestion->setAcceptUser($this->getDoctrine()->getRepository(User::class)->find($targetUser));
-            $suggestion->setSuggestUser($this->getUser());
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($suggestion);
-            $em->flush();
-
-            $responce = ['status' => 'success'];
-
-            $serializer = $this->container->get('jms_serializer');
-            $json = $serializer->serialize($responce, 'json');
-            return new JsonResponse($json, Response::HTTP_OK, array('content-type' => 'application/json'));
-        }else {
-            $serializer = $this->container->get('jms_serializer');
-            $json = $serializer->serialize(['status' => 'error'],  'json');
-            return new JsonResponse($json);
-        }
+        return $this->JsonResponce($responce);
     }
 
 
@@ -81,68 +58,23 @@ class SuggestionApiController extends Controller
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $session = new Session();
-        $csrfToken = $session->get('csrf_token');
-
+        $session     = new Session();
+        $csrfToken   = $session->get('csrf_token');
         $contentJson = $request->getContent();
-        $content = json_decode($contentJson, true);
+        $friends     = $session->get('friends');
+        $content     = json_decode($contentJson, true);
+        $currentId   = $this->getUser()->getId();
 
-        $requestedToken = $content['csrf_token'];
+        $responce = $this->suggestionService
+                            ->acceptSuggestion($currentId, $content, $csrfToken, $friends);
 
-        if ( $csrfToken === $requestedToken ) {
+        if ( $responce['status'] === 'success' ) {
+            $friends[] = $responce['newFriend'];
 
-            /** @var User $currentUserData */
-            $currentUserData = $this->getDoctrine()
-                        ->getRepository(User::class)
-                        ->getUserWithFriends($this->getUser()->getId());
-
-            /** @var Suggestion $suggestion */
-            $suggestion = $this->getDoctrine()
-                                ->getRepository(Suggestion::class)
-                                ->seeFullSuggestion($content['suggestionId']);
-
-            if ( $suggestion->getAcceptUser()->getId() == $currentUserData->getId() ) {
-                $currentUserData->addFriend($suggestion->getSuggestUser());
-
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($currentUserData);
-                $em->flush();
-
-                $this->getDoctrine()
-                    ->getRepository(Suggestion::class)
-                    ->disableSuggestion($content['suggestionId']);
-
-                return $this->JsonResponce(['status' => 'success']);
-            }else {
-                return $this->JsonResponce(['status' => 'error']);
-            }
-
-        }else {
-            $arr = ['status' => 'error'];
-            return $this->JsonResponce($arr);
-        }
-    }
-
-
-    /**
-     * @Route("/getUnseenSuggestion", methods={"GET"})
-     */
-    public function getUnseenSuggestion()
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
-        $countArr = $this->getDoctrine()
-                    ->getRepository(Suggestion::class)
-                    ->getUnseenSuggestions($this->getUser()->getId());
-
-        $count = $countArr[1];
-
-        if ( $count > 0 ) {
-            return $this->JsonResponce(['status' => 'success', 'suggestion' => 'true']);
-        }else {
-            return $this->JsonResponce(['status' => 'success', 'suggestion' => 'false']);
+            $session->set('friends', $friends);
         }
 
+        return $this->JsonResponce($responce);
     }
 
 

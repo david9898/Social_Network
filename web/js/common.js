@@ -1,4 +1,4 @@
-let webSocket = new WebSocket('ws://192.168.0.101:9899')
+let webSocket = new WebSocket('ws://192.168.0.103:9899')
 $(document).ready(async () => {
     let myMessageTemplate   = await $.get('TemplatesHbs/myMessage.hbs')
     let yourMessageTemplate = await $.get('TemplatesHbs/yourMessage.hbs')
@@ -36,6 +36,10 @@ $(document).ready(async () => {
 
             case 'seeCertainMessage':
                 lastMessageStatus(data, savedTemplate, deliveredTemplate, seenTemplate)
+                break
+
+            case 'addSuggestion':
+                addSuggestion(addMessageAudio)
                 break
         }
     }
@@ -139,7 +143,6 @@ function addMessage(webSocket, msg, yourMessageTemplate, audio, friendTemplate, 
                 'fullName': fullName,
                 'countMsg': countMessages
             }
-            console.log(obj)
             $('.friends_container #' + sendUser).remove()
             let template = Handlebars.compile(friendTemplate)
             let html = template(obj)
@@ -179,15 +182,32 @@ function seeMessageBetweenUsers(data, seenTemplate) {
     let splitArr = url.split('/')
 
     if ( splitArr[3] === 'messages' ) {
-        let lastClass = $('.real_text_message_container').children().last().attr('class')
-        if ( lastClass === 'div_message_mine' ) {
-            let currentUser = $('.current_user').attr('acceptuser')
+        let allMessages = $('.real_text_message_container').children().toArray()
+        if ( allMessages.length > 0 ) {
+            let lastElementClass = $(allMessages[allMessages.length - 1]).attr('class')
+            if ( lastElementClass === 'message_notification_in_container' ) {
+                let lastClass = $(allMessages[allMessages.length - 2]).attr('class')
+                if (lastClass === 'div_message_mine') {
+                    let currentUser = $('.current_user').attr('acceptuser')
 
-            if (data['otherId'] == currentUser) {
-                $('.message_notification_in_container').remove()
-                let template = Handlebars.compile(seenTemplate)
-                let html = template()
-                $('.real_text_message_container').append(html)
+                    if (data['otherId'] == currentUser) {
+                        $('.message_notification_in_container').remove()
+                        let template = Handlebars.compile(seenTemplate)
+                        let html = template()
+                        $('.real_text_message_container').append(html)
+                    }
+                }
+            }else {
+                if (lastElementClass === 'div_message_mine') {
+                    let currentUser = $('.current_user').attr('acceptuser')
+
+                    if (data['otherId'] == currentUser) {
+                        $('.message_notification_in_container').remove()
+                        let template = Handlebars.compile(seenTemplate)
+                        let html = template()
+                        $('.real_text_message_container').append(html)
+                    }
+                }
             }
         }
     }
@@ -218,4 +238,9 @@ function lastMessageStatus(data, savedTemplate, deliverTemplate, seenTemplate) {
             }
         }
     }
+}
+
+function addSuggestion(audio) {
+    audio.play()
+    return toastr.info('You have new Suggestion')
 }

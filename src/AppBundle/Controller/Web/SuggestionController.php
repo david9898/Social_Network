@@ -30,6 +30,11 @@ class SuggestionController extends Controller
             ->getRepository(Suggestion::class)
             ->seeAllSuggestions($currentId);
 
+        $suggestionssssCount = $this->getDoctrine()
+                                    ->getRepository(Suggestion::class)
+                                    ->find(50);
+
+        var_dump($suggestionssssCount->getAcceptUser()->getId());
         return $this->render('users/mySuggestions.html.twig', [
             'suggestions' => $suggestions,
             'csrfToken' => $csrfToken,
@@ -50,11 +55,11 @@ class SuggestionController extends Controller
 
         $session->set('csrf_token', $csrfToken);
 
-        $friendsId = $session->get('friends');
+        $friendsAndSuggestions = $session->get('friendsAndSuggestions');
 
         $users = $this->getDoctrine()
                         ->getRepository(User::class)
-                        ->findUsersBySearch(1, $friendsId);
+                        ->findUsersBySearch(1, $friendsAndSuggestions);
 
 
         return $this->render('users/findFriends.html.twig', [

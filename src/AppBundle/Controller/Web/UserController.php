@@ -34,6 +34,9 @@ class UserController extends Controller
             $user->setProfileImage($imageName);
             $user->setPassword($password);
 
+            $fullName = $user->getFirstName() . ' ' . $user->getLastName();
+            $user->setFullName($fullName);
+
             $entytiManager = $this->getDoctrine()->getManager();
             $entytiManager->persist($user);
             $entytiManager->flush();

@@ -20,6 +20,10 @@ class HomeController extends Controller
 
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        $lastUserId = $this->getDoctrine()
+                        ->getRepository(User::class)
+                        ->getLastUserId();
+        print_r($lastUserId);
         $session = new Session();
         $currentId = $this->getUser()->getId();
 
@@ -31,11 +35,11 @@ class HomeController extends Controller
             /** @var User $currentUser */
             $currentUser = $this->getDoctrine()
                 ->getRepository(User::class)
-                ->getFullUser($currentId);
+                ->find($currentId);
 
             $suggestions = $this->getDoctrine()
-                ->getRepository(Suggestion::class)
-                ->getMySendSuggestions($currentId);
+                                ->getRepository(Suggestion::class)
+                                ->getSendAndAcceptSuggestions($currentId);
 
             $friends = $currentUser->getMyFriends();
 
@@ -53,15 +57,19 @@ class HomeController extends Controller
                 $friendsId[] = $friend->getId();
             }
 
+            $session->set('friends', $friendsId);
+
+            $friendsAndSuggestions = $friendsId;
+
             foreach ($suggestions as $suggestion) {
-                if ($suggestion['suggestUser'] === $currentId) {
-                    $friendsId[] = $suggestion['acceptUser'];
-                } else {
-                    $friendsId[] = $suggestion['suggestUser'];
+                if ( $suggestion['suggestUser'] == $currentId ) {
+                    $friendsAndSuggestions[] = $suggestion['acceptUser'];
+                }else {
+                    $friendsAndSuggestions[] = $suggestion['suggestUser'];
                 }
             }
 
-            $session->set('friends', $friendsId);
+            $session->set('friendsAndSuggestions', $friendsAndSuggestions);
         }
 
         $articles = $this->getDoctrine()

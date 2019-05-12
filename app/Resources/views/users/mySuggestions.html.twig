@@ -24,11 +24,14 @@
 {% endblock %}
 
 {% block stylesheets %}
-    <link href="node_modules/toastr/build/toastr.css" rel="stylesheet" />
+
+    {{ parent() }}
+
 {% endblock %}
 
 {% block javascripts %}
-    <script src="{{ asset('node_modules/jquery/dist/jquery.js') }}"></script>
-    <script src="{{ asset('node_modules/toastr/build/toastr.min.js') }}"></script>
+
+    {{ parent() }}
     <script src="{{ asset('js/acceptSuggestion.js') }}"></script>
+
 {% endblock %}

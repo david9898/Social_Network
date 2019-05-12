@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileUploader
 {
-
     public function uploadImage(UploadedFile $uploadedFile, $targetDirectory)
     {
         $fileName = md5(uniqid()). '.' . $uploadedFile->guessExtension();
