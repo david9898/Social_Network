@@ -1,8 +1,9 @@
 $(document).ready(
     function () {
-        sessionStorage.setItem('currentList', 1)
+        sessionStorage.setItem('currentList', 2)
 
         addSuggestion()
+        searchFriends()
 
         $('#show_more').on('click', function () {
             let num = Number(sessionStorage.getItem('currentList'));
@@ -73,5 +74,17 @@ function addSuggestion() {
         }).catch(err => console.log(err))
 
     })
+}
 
+function searchFriends() {
+    $('.friends_search_input').on('input', function () {
+        let name = $('.friends_search_input').val()
+
+        let obj = {
+            'command': 'searchFriends',
+            'name': name
+        }
+
+        webSocket.send(JSON.stringify(obj))
+    })
 }

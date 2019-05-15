@@ -87,4 +87,19 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
 
         return $query->getOneOrNullResult();
     }
+
+    public function findUsersByEmailOrName($name, $list)
+    {
+        $firstResult = $list * 20 - 20;
+
+        $dql = 'SELECT u.id, u.fullName, u.profileImage FROM AppBundle:User u WHERE u.fullName LIKE :name OR u.email LIKE :name';
+
+        $query = $this->getEntityManager()
+                    ->createQuery($dql)
+                    ->setFirstResult($firstResult)
+                    ->setMaxResults(20)
+                    ->setParameter('name', $name . '%');
+
+        return $query->getResult();
+    }
 }

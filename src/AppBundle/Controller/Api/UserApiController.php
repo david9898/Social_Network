@@ -4,6 +4,7 @@ namespace AppBundle\Controller\Api;
 
 use AppBundle\Entity\Suggestion;
 use AppBundle\Entity\User;
+use AppBundle\Service\UserService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,72 +20,39 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserApiController extends Controller
 {
 
+    private $userService;
+
+    public function __construct(UserService $service)
+    {
+        $this->userService = $service;
+    }
+
     /**
-     * @Route("/findMoreFriends/{list}")
+     * @Route("/findMoreFriends/{list}/{csrfToken}/{name}")
      * @Method("GET")
      *
      */
-    public function getMoreUsers($list)
+    public function getMoreUsers($list, $csrfToken, $name)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $session = new Session();
+        $session           = new Session();
+        $realCsrfToken     = $session->get('csrf_token');
+        $friends           = $session->get('friends');
+        $suggestionsFromMe = $session->get('suggestionsFromMe');
+        $suggestionsToMe   = $session->get('suggestionsToMe');
 
-        $CU = $this->getDoctrine()
-                    ->getRepository(User::class)
-                    ->getCountUsers();
+        $service = $this->userService->getMoreFriends($realCsrfToken, $list, $name, $csrfToken);
 
-        $countUsers = (int)$CU[1];
+        if ( $service['status'] === 'success' ) {
+            $service['friends']           = $friends;
+            $service['suggestionsFromMe'] = $suggestionsFromMe;
+            $service['suggestionsToMe']   = $suggestionsToMe;
 
-        /** @var User $currentUser */
-        $currentUser = $this->getDoctrine()
-                            ->getRepository(User::class)
-                            ->getFullUser($this->getUser()->getId());
-
-        $currentId = $currentUser->getId();
-
-        $friendsId = $session->get('friends');
-
-        $suggestions = $this->getDoctrine()
-                            ->getRepository(Suggestion::class)
-                            ->getMySendSuggestions($currentId);
-
-        foreach ($suggestions as $suggestion) {
-            /** @var Suggestion $suggestion */
-            if ( $suggestion->getAcceptUser()->getId() != $currentId ) {
-                $friendsId[] = $suggestion->getAcceptUser()->getId();
-            }
+            return $this->JsonResponce($service);
+        }else {
+            return $this->JsonResponce($service);
         }
-
-        foreach ($suggestions as $suggestion) {
-            /** @var Suggestion $suggestion */
-            if ( $suggestion->getSuggestUser()->getId() != $currentId ) {
-                $friendsId[] = $suggestion->getSuggestUser()->getId();
-            }
-        }
-
-        $users = $this->getDoctrine()
-                        ->getRepository(User::class)
-                        ->findUsersBySearch($list, $friendsId);
-
-        $lastUser = $users[count($users) - 1]->getId();
-
-        if ( $lastUser >= $countUsers ) {
-            $responce = ['users' => $users, 'last' => 'true', 'count' => $countUsers, 'lastUser' => $lastUser];
-
-            $serializer = $this->container->get('jms_serializer');
-            $json = $serializer->serialize($responce, 'json');
-
-            return new JsonResponse($json,
-                Response::HTTP_OK, array('content-type' => 'application/json'));
-        }
-
-        $responce = ['users' => $users];
-        $serializer = $this->container->get('jms_serializer');
-        $json = $serializer->serialize($responce, 'json');
-
-        return new JsonResponse($json,
-                    Response::HTTP_OK, array('content-type' => 'application/json'));
     }
 
     private function JsonResponce($array)

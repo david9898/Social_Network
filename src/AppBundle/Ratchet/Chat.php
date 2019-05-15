@@ -48,7 +48,7 @@ class Chat implements MessageComponentInterface
                 break;
 
             case 'searchFriends':
-                $this->searchFriends($from, $msg);
+                $this->searchFriends($from, $msgContent, $myId);
                 break;
 
         }
@@ -193,16 +193,36 @@ class Chat implements MessageComponentInterface
         }
     }
 
-    private function searchFriends($conn, $msg)
+    private function searchFriends($conn, $msg, $currentId)
     {
         $name = htmlspecialchars($msg['name']);
 
-        $sql = 'SELECT id, profile_image, full_name FROM users WHERE full_name LIKE :name LIMIT 20';
+        $sql = "SELECT id, profile_image, full_name FROM users WHERE full_name LIKE '" . $name . "%' OR email LIKE '". $name ."%' LIMIT 21";
 
-        $query = $this->pdo->prepare($sql);
+        $query   = $this->pdo->prepare($sql);
         $query->execute([$name]);
-        $data = $query->fetchAll(\PDO::FETCH_ASSOC);
+        $data    = $query->fetchAll(\PDO::FETCH_ASSOC);
+        $moreRes = 'false';
 
-        $conn->send(json_encode($data));
+        if ( count($data) > 20 ) {
+            array_pop($data);
+            $moreRes = 'true';
+        }
+
+        $friends           = $conn->Session->get('friends');
+        $suggestionsFromMe = $conn->Session->get('suggestionsFromMe');
+        $suggestionsToMe   = $conn->Session->get('suggestionsToMe');
+
+        $arr = [
+          'command'           => 'searchFriends',
+          'data'              => $data,
+          'friends'           => $friends,
+          'suggestionsFromMe' => $suggestionsFromMe,
+          'suggestionsToMe'   => $suggestionsToMe,
+          'myId'              => $currentId,
+          'moreResults'       => $moreRes
+        ];
+
+        $conn->send(json_encode($arr));
     }
 }

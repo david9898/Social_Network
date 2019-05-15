@@ -24,7 +24,7 @@ class SuggestionRepository extends \Doctrine\ORM\EntityRepository
 
     public function getMySendSuggestions($id)
     {
-        $dql = 'SELECT ss.id as suggestUser, sa.id as acceptUser FROM AppBundle:Suggestion s JOIN s.suggestUser ss 
+        $dql = 'SELECT ss.id as suggestUser, sa.id as acceptUser FROM AppBundle:Suggestion s JOIN s.suggestUser ss
                 JOIN s.acceptUser sa WHERE (s.suggestUser = :id OR s.acceptUser = :id) AND s.isDisabled = 0';
 
         $query = $this->getEntityManager()
@@ -114,5 +114,29 @@ class SuggestionRepository extends \Doctrine\ORM\EntityRepository
                     ->setParameter('myId', $myId);
 
         return $query->getOneOrNullResult();
+    }
+
+    public function getSendFromMeSuggestions($myId)
+    {
+        $dql = 'SELECT s.id, sa.id as acceptUser FROM AppBundle:Suggestion s JOIN s.acceptUser sa
+                WHERE s.suggestUser = :myId AND s.isDisabled = 0';
+
+        $query = $this->getEntityManager()
+                    ->createQuery($dql)
+                    ->setParameter('myId', $myId);
+
+        return $query->getResult();
+    }
+
+    public function getSuggestionsToMe($myId)
+    {
+        $dql = 'SELECT s.id, ss.id as sendUser FROM AppBundle:Suggestion s JOIN s.suggestUser ss
+                WHERE s.acceptUser = :myId AND s.isDisabled = 0';
+
+        $query = $this->getEntityManager()
+            ->createQuery($dql)
+            ->setParameter('myId', $myId);
+
+        return $query->getResult();
     }
 }

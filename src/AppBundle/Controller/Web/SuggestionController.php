@@ -50,20 +50,16 @@ class SuggestionController extends Controller
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $session = new Session();
+        $res = $this->getDoctrine()
+                    ->getRepository(User::class)
+                    ->findUsersByEmailOrName('elen', 3);
 
+        print_r($res);
         $csrfToken = bin2hex(random_bytes(32));
 
         $session->set('csrf_token', $csrfToken);
 
-        $friendsAndSuggestions = $session->get('friendsAndSuggestions');
-
-        $users = $this->getDoctrine()
-                        ->getRepository(User::class)
-                        ->findUsersBySearch(1, $friendsAndSuggestions);
-
-
         return $this->render('users/findFriends.html.twig', [
-            'friends' => $users,
             'csrfToken' => $csrfToken,
         ]);
     }

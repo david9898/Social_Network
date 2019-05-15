@@ -5,21 +5,13 @@
 {% block main %}
 
         <section class="find-friends-user" csrf_token="{{ csrfToken }}">
-            {% for friend in friends %}
+            <input type="text" class="friends_search_input"/>
+            <div class="search_friends_results">
 
-                <div id="{{ friend.id }}">
-                    <div>
-                        <img src="uploads/profileImages/{{ friend.profileImage }}" style="width: 350px" />
-                    </div>
-                    <p>Email: {{ friend.email }}</p>
-                    <div>
-                        <button id="{{ friend.id }}" class="add_suggestion">Add</button>
-                    </div>
-                </div>
+            </div>
+            <div class="suggestion_for_user">
 
-            {% endfor %}
-
-            <button id="show_more">show more</button>
+            </div>
         </section>
 
 
