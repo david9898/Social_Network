@@ -2,143 +2,231 @@
 
 namespace AppBundle\Service;
 
-use AppBundle\Entity\User;
-use AppBundle\Entity\Suggestion;
-use Doctrine\ORM\EntityManagerInterface;
+use Predis\Client;
 
-class SuggestionService {
+class SuggestionService
+{
+    private $redis;
 
-    private $doctrine;
-
-    public function __construct(EntityManagerInterface $doctrine)
+    public function __construct()
     {
-        $this->doctrine = $doctrine;
+        $this->redis = new Client([
+            'scheme'   => 'tcp',
+            'host'     => '127.0.0.1',
+            'port'     => 6379,
+            'async'    => true
+        ]);
     }
 
-    /**
-     * @param $currentId
-     * @param $data
-     * @param $csrfToken
-     * @param $friends
-     * @return array
-     */
-    public function validateSuggestion($currentId, $data, $csrfToken, $friends)
+    public function getSuggestionToMe($id)
     {
-        $requestedToken = $data['csrf_token'];
-        $targetUser     = (int)$data['target_user'];
+        $suggestionToMe = $this->redis->zrange('suggestionTo: ' . $id, 0, -1);
 
-        if ( $csrfToken == $requestedToken ) {
-            $count = $this->doctrine
-                ->getRepository(\AppBundle\Entity\Suggestion::class)
-                ->getCountSuggestions($currentId);
+        $pipeline = $this->redis->pipeline();
 
-            if ( (int)$count[1] >= 50 ) {
-                $responce = ['status' => 'error', 'description' => 'You can`t send more requests!!!'];
+        foreach ($suggestionToMe as $user) {
+            $pipeline->hmget('user: ' . $user, ['id', 'email', 'fullName', 'profileImage']);
+        }
 
-                return $responce;
+        return $pipeline->execute();
+    }
+
+    public function acceptSuggestion($csrfToken, $realCsrfToken, $myId, $otherId)
+    {
+        if ( $csrfToken === $realCsrfToken ) {
+            $suggestionToMe          = $this->redis->zrank('suggestionTo: ' . $myId, $otherId);
+            $suggestionFromOtherUser = $this->redis->zrank('suggestionFrom: ' . $otherId, $myId);
+            $myFriends               = $this->redis->hget('user: ' . $myId, 'friends');
+            $otherUserFriends        = $this->redis->hget('user: ' . $otherId, 'friends');
+
+            if ( $suggestionToMe === null ) {
+                return ['status' => 'error', 'description' => 'Suggestion doesn`t exists!!!'];
             }
 
-            if ( in_array($targetUser, $friends) ) {
-                $responce = ['status' => 'error', 'description' => 'You are already Friends!!!'];
-
-                return $responce;
+            if ( $suggestionFromOtherUser === null ) {
+                return ['status' => 'error', 'description' => 'Suggestion doesn`t exists!!!'];
             }
 
-            $checkForExistSuggestion = $this->doctrine
-                                        ->getRepository(Suggestion::class)
-                                        ->checkIfExistSuggestion($currentId, $targetUser);
-
-            if ( $checkForExistSuggestion != null ) {
-                $responce = ['status' => 'error', 'description' => 'This Suggestion already exists!!!'];
-
-                return $responce;
+            if ( (int)$myFriends >= 1000 ) {
+                return ['status' => 'error', 'description' => 'Max limit friends is 1000!!!'];
             }
 
-            $suggestion = new Suggestion();
+            if ( (int)$otherUserFriends >= 1000 ) {
+                return ['status' => 'error', 'description' => 'Max limit friends is 1000!!!'];
+            }
 
-            $suggestion->setAcceptUser($this->doctrine
-                                            ->getRepository(User::class)
-                                            ->find($targetUser));
+            $pipeline = $this->redis->pipeline();
 
-            $suggestion->setSuggestUser($this->doctrine
-                                            ->getRepository(User::class)
-                                            ->find($currentId));
+            $pipeline->zadd('friends: ' . $myId, [$otherId => time()]);
+            $pipeline->zadd('followers: ' . $myId, [$otherId => time()]);
+            $pipeline->zadd('follow: ' . $myId, [$otherId => time()]);
+            $pipeline->zrem('suggestionTo: ' . $myId, $otherId);
+            $pipeline->hincrby('user: ' . $myId, 'friends', 1);
+            $pipeline->hincrby('user: ' . $myId, 'followers', 1);
+            $pipeline->hincrby('user: ' . $myId, 'follow', 1);
 
-            $em = $this->doctrine;
-            $em->persist($suggestion);
-            $em->flush();
+            $pipeline->zadd('friends: ' . $otherId, [$myId => time()]);
+            $pipeline->zadd('followers: ' . $otherId, [$myId => time()]);
+            $pipeline->zadd('follow: ' . $otherId, [$myId => time()]);
+            $pipeline->zrem('suggestionFrom: ' . $otherId, $myId);
+            $pipeline->hincrby('user: ' . $otherId, 'friends', 1);
+            $pipeline->hincrby('user: ' . $otherId, 'followers', 1);
+            $pipeline->hincrby('user: ' . $otherId, 'follow', 1);
 
-            $responce = ['status' => 'success'];
+            $pipeline->hincrby('user: ' . $otherId, 'notifications', 1);
 
-            return $responce;
+
+            $pipeline->execute();
+
+            $suggestionFrom = $this->redis->hget('user: ' . $otherId, 'suggestionFrom');
+            $suggestionTo   = $this->redis->hget('user: ' . $myId, 'suggestionTo');
+            $this->redis->hset('user: ' . $myId, 'suggestionTo', (int)$suggestionTo - 1);
+            $this->redis->hset('user: ' . $otherId, 'suggestionFrom', (int)$suggestionFrom - 1);
+
+            $image    = $this->redis->hget('user: ' . $myId, 'profileImage');
+            $fullName = $this->redis->hget('user: ' . $myId, 'fullName');
+            $arr      = [
+                'profileImage'    => $image,
+                'fullName'        => $fullName,
+                'message'         => ' accept your friendship!!!',
+                'href'            => '/profile/' . $myId
+            ];
+
+            $countNotifications = $this->redis->lpush('notifications: ' . $otherId, json_encode($arr));
+
+            if ( (int)$countNotifications >= 19 ) {
+                $this->redis->rpop('notifications: ' . $otherId);
+            }
+
+            $arr['id']      = $otherId;
+            $arr['command'] = 'acceptSuggestion';
+
+            $context        = new \ZMQContext(1);
+            $socket         = $context->getSocket(\ZMQ::SOCKET_PUSH);
+            $socket->connect("tcp://127.0.0.1:5555");
+            $socket->send(json_encode($arr));
+
+            return ['status' => 'success'];
         }else {
-            $responce = ['status' => 'error', 'description' => 'Wrong CSRF Token'];
-
-            return $responce;
+            return ['status' => 'error', 'description' => 'Wrong CsrfToken!!!'];
         }
     }
 
-    public function acceptSuggestion($currentId, $data, $csrfToken, $friends)
+    public function addSuggestion($csrfToken, $realCsrfToken, $myId, $otherId)
     {
-        $requestedToken = $data['csrf_token'];
-        $suggestionId   = $data['suggestionId'];
+        if ( $csrfToken === $realCsrfToken ) {
 
-        if ( $requestedToken == $csrfToken ) {
+            $pipeline = $this->redis->pipeline();
 
-            $suggestion = $this->doctrine
-                                ->getRepository(Suggestion::class)
-                                ->find($suggestionId);
+            $pipeline->zrank('suggestionTo: ' . $myId, $otherId);
+            $pipeline->zrank('suggestionFrom: ' . $myId, $otherId);
+            $pipeline->zrank('friends: ' . $myId, $otherId);
+            $pipeline->zrank('suggestionTo: ' . $otherId, $myId);
+            $pipeline->zrank('suggestionFrom: ' . $otherId, $myId);
+            $pipeline->zrank('friends: ' . $otherId, $myId);
+            $pipeline->hget('user: ' . $myId, 'suggestionFrom');
 
-            if ( $suggestion == null ) {
-                $responce = ['status' => 'error', 'description' => 'This suggestion doesn`t exist!!!'];
+            $responce = $pipeline->execute();
 
-                return $responce;
+
+            if ( (int)$responce[6] >= 50 ) {
+                return ['status' => 'error', 'description' => 'You can not send more suggestions!!!'];
             }
 
-            if ( $suggestion->isDisabled() == 1 ) {
-                $responce = ['status' => 'error', 'description' => 'This is not valid suggestion!!!'];
-
-                return $responce;
+            if ( $responce[0] !== null ) {
+                return ['status' => 'error', 'description' => 'Invalid suggestion!!!'];
             }
 
-            $acceptUser  = $suggestion->getAcceptUser()->getId();
-            $suggestUser = $suggestion->getSuggestUser()->getId();
-
-            if ( $acceptUser != $currentId ) {
-                $responce = ['status' => 'error', 'description' => 'This is not valid suggestion!!!'];
-
-                return $responce;
+            if ( $responce[1] !== null ) {
+                return ['status' => 'error', 'description' => 'Invalid suggestion!!!'];
             }
 
-            if ( in_array($suggestUser, $friends) ) {
-                $responce = ['status' => 'error', 'description' => 'This is not valid suggestion!!!'];
-
-                return $responce;
+            if ( $responce[2] !== null ) {
+                return ['status' => 'error', 'description' => 'Invalid suggestion!!!'];
             }
 
-            $currentUser = $this->doctrine
-                                ->getRepository(User::class)
-                                ->find($currentId);
+            if ( $responce[3] !== null ) {
+                return ['status' => 'error', 'description' => 'Invalid suggestion!!!'];
+            }
 
-            $currentUser->addFriend($suggestion->getSuggestUser());
+            if ( $responce[4] !== null ) {
+                return ['status' => 'error', 'description' => 'Invalid suggestion!!!'];
+            }
 
-            $em = $this->doctrine;
-            $em->persist($currentUser);
-            $em->flush();
+            if ( $responce[5] !== null ) {
+                return ['status' => 'error', 'description' => 'Invalid suggestion!!!'];
+            }
 
-            $this->doctrine
-                ->getRepository(Suggestion::class)
-                ->disableSuggestion($suggestionId);
+            $pipeline = $this->redis->pipeline();
 
-            $responce = ['status' => 'success', 'newFriend' => $suggestUser];
+            $pipeline->hincrby('user: ' . $myId, 'suggestionFrom', 1);
+            $pipeline->hincrby('user: ' . $otherId, 'suggestionTo', 1);
+            $pipeline->zadd('suggestionFrom: ' . $myId, [$otherId => time()]);
+            $pipeline->zadd('suggestionTo: ' . $otherId, [$myId => time()]);
 
-            return $responce;
+            $pipeline->execute();
 
+            $image    = $this->redis->hget('user: ' . $myId, 'profileImage');
+            $fullName = $this->redis->hget('user: ' . $myId, 'fullName');
+            $arr      = [
+                'profileImage' => $image,
+                'fullName'     => $fullName,
+                'message'      => ' send you friendship!!!',
+                'href'         => '/profile/' . $myId
+            ];
+
+            $countNotifications = $this->redis->lpush('notifications: ' . $otherId, json_encode($arr));
+
+            if ( (int)$countNotifications >= 19 ) {
+                $this->redis->rpop('notifications: ' . $otherId);
+            }
+
+            $arr['id'] = $otherId;
+            $arr['command'] = 'addSuggestion';
+            $context   = new \ZMQContext(1);
+            $socket    = $context->getSocket(\ZMQ::SOCKET_PUSH);
+            $socket->connect("tcp://127.0.0.1:5555");
+            $socket->send(json_encode($arr));
+
+            return ['status' => 'success'];
         }else {
-            $responce = ['status' => 'error', 'description' => 'CSRFToken is not valid!!!'];
-
-            return $responce;
+            return ['status' => 'error', 'description' => 'Wrong csrfToken!!!'];
         }
-
     }
+
+    public function denySuggestion($csrfToken, $realCsrfToken, $myId, $otherId)
+    {
+        if ( $csrfToken === $realCsrfToken ) {
+            $pipeline = $this->redis->pipeline();
+
+            $pipeline->zrank('suggestionTo: ' . $myId, $otherId);
+            $pipeline->zrank('suggestionFrom: ' . $otherId, $myId);
+            $pipeline->hget('user: ' . $myId, 'suggestionTo');
+            $pipeline->hget('user: ' . $otherId, 'suggestionFrom');
+
+            $exPipeline = $pipeline->execute();
+
+            if ( $exPipeline[0] === null ) {
+                return ['status' => 'error', 'description' => 'Invalid suggestion!!!'];
+            }
+
+            if ( $exPipeline[1] === null ) {
+                return ['status' => 'error', 'description' => 'Invalid suggestion!!!'];
+            }
+
+            $pipeline = $this->redis->pipeline();
+
+            $pipeline->zrem('suggestionTo: ' . $myId, $otherId);
+            $pipeline->zrem('suggestionFrom: ' . $otherId, $myId);
+            $pipeline->hset('user: ' . $myId, 'suggestionTo',$exPipeline[2] - 1);
+            $pipeline->hset('user: ' . $otherId, 'suggestionFrom', $exPipeline[3] - 1);
+
+            $pipeline->execute();
+
+            return ['status' => 'success'];
+        }else {
+            return ['status' => 'error', 'description' => 'Wrong csrfToken!!!'];
+        }
+    }
+
 }

@@ -3,7 +3,7 @@
 namespace AppBundle\Controller\Web;
 
 use AppBundle\Entity\Message;
-use AppBundle\Entity\User;
+use AppBundle\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,7 +14,7 @@ class MessageController extends Controller
     /**
      * @Route("/messages", name="message")
      */
-    public function showMessages()
+    public function showMessages(UserService $userService)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -26,12 +26,7 @@ class MessageController extends Controller
 
         $currentId = $this->getUser()->getId();
 
-        /** @var User $user */
-        $user = $this->getDoctrine()
-            ->getRepository(User::class)
-            ->getFullUser($currentId);
-
-        $friends = $this->mergeArrays([$user->getFriendsWithMe(), $user->getMyFriends()]);
+        $friends = $userService->getFriendsData($currentId);
 
         /** @var Message[] $messages */
         $messages = $this->getDoctrine()

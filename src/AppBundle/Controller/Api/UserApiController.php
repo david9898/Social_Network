@@ -38,21 +38,11 @@ class UserApiController extends Controller
 
         $session           = new Session();
         $realCsrfToken     = $session->get('csrf_token');
-        $friends           = $session->get('friends');
-        $suggestionsFromMe = $session->get('suggestionsFromMe');
-        $suggestionsToMe   = $session->get('suggestionsToMe');
+        $myId              = $session->get('currentId');
 
-        $service = $this->userService->getMoreFriends($realCsrfToken, $list, $name, $csrfToken);
+        $service = $this->userService->getMoreFriends($realCsrfToken, $list, $name, $csrfToken, $myId);
 
-        if ( $service['status'] === 'success' ) {
-            $service['friends']           = $friends;
-            $service['suggestionsFromMe'] = $suggestionsFromMe;
-            $service['suggestionsToMe']   = $suggestionsToMe;
-
-            return $this->JsonResponce($service);
-        }else {
-            return $this->JsonResponce($service);
-        }
+        return $this->JsonResponce($service);
     }
 
     private function JsonResponce($array)

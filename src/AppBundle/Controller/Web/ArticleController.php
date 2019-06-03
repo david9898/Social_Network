@@ -7,6 +7,7 @@ use AppBundle\Form\ArticleType;
 use AppBundle\Service\FileUploader;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -38,7 +39,11 @@ class ArticleController extends Controller
             $em->persist($article);
             $em->flush();
 
-            return $this->redirectToRoute('home');
+            $status = [
+                'status' => 'success'
+            ];
+
+            return new JsonResponse($status);
         }
 
         return $this->render('articles/add_edit_article.html.twig', [
@@ -47,7 +52,7 @@ class ArticleController extends Controller
     }
 
     /**
-     * @Route("/editArticle/{id}", name="edit_article")
+     * @Route("/editArticle/{id}", name="edit_article", methods={"POST", "GET"})
      */
     public function editArticle(Request $request, $id, FileUploader $fileUploader)
     {
@@ -85,10 +90,14 @@ class ArticleController extends Controller
             $em->persist($article);
             $em->flush();
 
-            return $this->redirectToRoute('home');
+            $status = [
+              'status' => 'success'
+            ];
+
+            return new JsonResponse($status);
         }
 
-        return $this->render('articles/add_edit_article.html.twig', [
+        return $this->render('articles/edit_article.html.twig', [
             'form' => $form->createView()
         ]);
     }

@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block main %}
+
+    <section>
+
+        {{ form(form) }}
+
+    </section>
+
+{% endblock %}
+
+{% block stylesheets %}
+
+    {{ parent() }}
+
+{% endblock %}
+
+{% block javascripts %}
+
+    {{ parent() }}
+    <script src="{{ asset('js/editArticle.js') }}"></script>
+
+{% endblock %}

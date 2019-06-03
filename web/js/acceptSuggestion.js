@@ -1,5 +1,6 @@
 $(document).ready(() => {
     onClickAccept()
+    denySuggestion()
 })
 
 function onClickAccept() {
@@ -8,7 +9,7 @@ function onClickAccept() {
         let csrfToken = $('.find-friends-user').attr('csrf_token')
 
         let data = {
-            'suggestionId': suggestionId.trim(),
+            'userId': suggestionId.trim(),
             'csrf_token': csrfToken
         }
 
@@ -26,7 +27,29 @@ function onClickAccept() {
                 $(this).parent().fadeOut()
                 return toastr.success('Success added!!!')
             }else {
-                return toastr.error('Something Wrong!!!')
+                return toastr.error(parceRes['description'])
+            }
+        })
+    })
+}
+
+function denySuggestion() {
+
+    $('.deny_suggestion').on('click', function () {
+        let csrfToken = $('.find-friends-user').attr('csrf_token')
+        let otherUser = $(this).attr('id')
+
+        $.ajax({
+            url: 'api/disableSuggestion/' + otherUser + '/' + csrfToken,
+            type: 'GET'
+        }).then((res) => {
+            let parceData = JSON.parse(res)
+
+            if ( parceData['status'] === 'success' ) {
+                $(this).parent().parent().fadeOut
+                return toastr.success('You denied suggestion')
+            }else {
+                return toastr.error(parceData['description'])
             }
         })
     })

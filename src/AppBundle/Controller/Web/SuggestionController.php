@@ -4,6 +4,7 @@ namespace AppBundle\Controller\Web;
 
 use AppBundle\Entity\Suggestion;
 use AppBundle\Entity\User;
+use AppBundle\Service\SuggestionService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,7 +15,7 @@ class SuggestionController extends Controller
     /**
      * @Route("/suggestions", name="suggestions_my_suggestions")
      */
-    public function getMySuggestions()
+    public function getMySuggestions(SuggestionService $suggestionService)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -26,15 +27,8 @@ class SuggestionController extends Controller
 
         $currentId = $this->getUser()->getId();
 
-        $suggestions = $this->getDoctrine()
-            ->getRepository(Suggestion::class)
-            ->seeAllSuggestions($currentId);
+        $suggestions = $suggestionService->getSuggestionToMe($currentId);
 
-        $suggestionssssCount = $this->getDoctrine()
-                                    ->getRepository(Suggestion::class)
-                                    ->find(50);
-
-        var_dump($suggestionssssCount->getAcceptUser()->getId());
         return $this->render('users/mySuggestions.html.twig', [
             'suggestions' => $suggestions,
             'csrfToken' => $csrfToken,
@@ -50,11 +44,7 @@ class SuggestionController extends Controller
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $session = new Session();
-        $res = $this->getDoctrine()
-                    ->getRepository(User::class)
-                    ->findUsersByEmailOrName('elen', 3);
 
-        print_r($res);
         $csrfToken = bin2hex(random_bytes(32));
 
         $session->set('csrf_token', $csrfToken);

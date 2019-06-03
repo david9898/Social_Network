@@ -1,55 +1,55 @@
-	$(document).ready(async () => {
+$(document).ready(async () => {
     let csrfToken = $('#csrf_token').val()
     let myMessageTemplate = await $.get('TemplatesHbs/myMessage.hbs')
     let yourMessageTemplate = await $.get('TemplatesHbs/yourMessage.hbs')
     let friendTemplate = await $.get('TemplatesHbs/friendTemplate.hbs')
 
-    sendMessage(csrfToken, myMessageTemplate)
+    // sendMessage(csrfToken, myMessageTemplate)
     changeCurrentFriends(csrfToken, myMessageTemplate, yourMessageTemplate)
-    getMessages(csrfToken, myMessageTemplate, yourMessageTemplate, friendTemplate)
+    // getMessages(csrfToken, myMessageTemplate, yourMessageTemplate, friendTemplate)
     searchInFriends(friendTemplate, csrfToken, myMessageTemplate, yourMessageTemplate)
 
 })
 
-function sendMessage(csrfToken, myMessage) {
-    $('.send_message_button').on('click', function () {
-        let acceptUser = $('.message_text').attr('acceptUser')
-        let content = $('.send_message').val()
-
-        if ( content !== '' ) {
-            let data = {
-                'csrfToken': csrfToken,
-                'acceptUser': acceptUser,
-                'content': content
-            }
-
-            $.ajax({
-                url: 'api/sendMessage',
-                type: 'POST',
-                data: JSON.stringify(data),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }).then(() => {
-                $('.be_first_to_message').empty()
-
-                let obj = {
-                    'content': content
-                }
-                let template = Handlebars.compile(myMessage)
-                let html = template(obj)
-                $('.message_text .real_text_message_container').append(html)
-
-                let scrollHeight = $('.message_container .message_text')[0].scrollHeight
-                $('.message_text').animate({scrollTop: scrollHeight})
-                $('.send_message').val('')
-
-            }).catch((err) => {
-
-            })
-        }
-    })
-}
+// function sendMessage(csrfToken, myMessage) {
+//     $('.send_message_button').on('click', function () {
+//         let acceptUser = $('.message_text').attr('acceptUser')
+//         let content = $('.send_message').val()
+//
+//         if ( content !== '' ) {
+//             let data = {
+//                 'csrfToken': csrfToken,
+//                 'acceptUser': acceptUser,
+//                 'content': content
+//             }
+//
+//             $.ajax({
+//                 url: 'api/sendMessage',
+//                 type: 'POST',
+//                 data: JSON.stringify(data),
+//                 headers: {
+//                     'Content-Type': 'application/json'
+//                 }
+//             }).then(() => {
+//                 $('.be_first_to_message').empty()
+//
+//                 let obj = {
+//                     'content': content
+//                 }
+//                 let template = Handlebars.compile(myMessage)
+//                 let html = template(obj)
+//                 $('.message_text .real_text_message_container').append(html)
+//
+//                 let scrollHeight = $('.message_container .message_text')[0].scrollHeight
+//                 $('.message_text').animate({scrollTop: scrollHeight})
+//                 $('.send_message').val('')
+//
+//             }).catch((err) => {
+//
+//             })
+//         }
+//     })
+// }
 
 function changeCurrentFriends(csrfToken, myMessage, yourMessage) {
     let xhr = new XMLHttpRequest()
@@ -195,68 +195,68 @@ function showMoreOnScroll(res, myMessage, yourMessage) {
     }
 }
 
-function getMessages(csrfToken, myMessage, yourMessage, friendTemplate) {
-    let audio = new Audio('sounds/musical_keyboard_key_flick_spring_up.mp3')
-    setInterval(function () {
-        let currentUser = $('.current_user').attr('acceptUser')
-
-        if ( currentUser === undefined ) {
-            currentUser = 'undefined'
-        }
-
-        $.ajax({
-            url: 'api/getMessageData/' + csrfToken + '/' + currentUser,
-            type: 'GET',
-        }).then((res) => {
-            let realData = JSON.parse(res)
-            let currentUser = $('.current_user').attr('acceptUser')
-            let data = realData['data']
-
-            if ( data.length > 0 ) {
-                audio.play()
-                for (let msg of data) {
-                    if ( msg['sendUserId'] == currentUser ) {
-                        let template = Handlebars.compile(yourMessage)
-                        let html = template(msg)
-                        $('.message_container .message_text .real_text_message_container').append(html)
-                        let scrollHeight = $('.message_container .message_text')[0].scrollHeight
-                        $('.message_text').animate({scrollTop: scrollHeight})
-                    }else {
-                        let id = msg['sendUserId']
-                        $('aside #' + id + ' .current_user_count_message').css('display', 'block')
-                        let currentMsg = $('aside .friends_container #' + id + ' .current_user_count_message span').text()
-                        if ( currentMsg !== '' ) {
-                            let obj = {
-                                'id': id,
-                                'image': $('aside .friends_container #' + id + ' img').attr('src'),
-                                'fullName': $('aside .friends_container #' + id + ' .full_name').text(),
-                                'countMsg': Number(currentMsg) + 1
-                            }
-                            $('aside #' + id).remove()
-
-                            let template = Handlebars.compile(friendTemplate)
-                            let html = template(obj)
-                            $('aside .friends_container').prepend(html)
-                        }else {
-                            let obj = {
-                                'id': id,
-                                'image': $('aside .friends_container #' + id + ' img').attr('src'),
-                                'fullName': $('aside .friends_container #' + id + ' .full_name').text(),
-                                'countMsg': 1
-                            }
-                            $('aside #' + id).remove()
-
-                            let template = Handlebars.compile(friendTemplate)
-                            let html = template(obj)
-                            $('aside .friends_container').prepend(html)
-                        }
-                    }
-                }
-            }
-            changeCurrentFriends(csrfToken, myMessage, yourMessage)
-        })
-    }, 5000)
-}
+// function getMessages(csrfToken, myMessage, yourMessage, friendTemplate) {
+//     let audio = new Audio('sounds/musical_keyboard_key_flick_spring_up.mp3')
+//     setInterval(function () {
+//         let currentUser = $('.current_user').attr('acceptUser')
+//
+//         if ( currentUser === undefined ) {
+//             currentUser = 'undefined'
+//         }
+//
+//         $.ajax({
+//             url: 'api/getMessageData/' + csrfToken + '/' + currentUser,
+//             type: 'GET',
+//         }).then((res) => {
+//             let realData = JSON.parse(res)
+//             let currentUser = $('.current_user').attr('acceptUser')
+//             let data = realData['data']
+//
+//             if ( data.length > 0 ) {
+//                 audio.play()
+//                 for (let msg of data) {
+//                     if ( msg['sendUserId'] == currentUser ) {
+//                         let template = Handlebars.compile(yourMessage)
+//                         let html = template(msg)
+//                         $('.message_container .message_text .real_text_message_container').append(html)
+//                         let scrollHeight = $('.message_container .message_text')[0].scrollHeight
+//                         $('.message_text').animate({scrollTop: scrollHeight})
+//                     }else {
+//                         let id = msg['sendUserId']
+//                         $('aside #' + id + ' .current_user_count_message').css('display', 'block')
+//                         let currentMsg = $('aside .friends_container #' + id + ' .current_user_count_message span').text()
+//                         if ( currentMsg !== '' ) {
+//                             let obj = {
+//                                 'id': id,
+//                                 'image': $('aside .friends_container #' + id + ' img').attr('src'),
+//                                 'fullName': $('aside .friends_container #' + id + ' .full_name').text(),
+//                                 'countMsg': Number(currentMsg) + 1
+//                             }
+//                             $('aside #' + id).remove()
+//
+//                             let template = Handlebars.compile(friendTemplate)
+//                             let html = template(obj)
+//                             $('aside .friends_container').prepend(html)
+//                         }else {
+//                             let obj = {
+//                                 'id': id,
+//                                 'image': $('aside .friends_container #' + id + ' img').attr('src'),
+//                                 'fullName': $('aside .friends_container #' + id + ' .full_name').text(),
+//                                 'countMsg': 1
+//                             }
+//                             $('aside #' + id).remove()
+//
+//                             let template = Handlebars.compile(friendTemplate)
+//                             let html = template(obj)
+//                             $('aside .friends_container').prepend(html)
+//                         }
+//                     }
+//                 }
+//             }
+//             changeCurrentFriends(csrfToken, myMessage, yourMessage)
+//         })
+//     }, 5000)
+// }
 
 function searchInFriends(friendTemplate, csrfToken, myMessage, yourMessage) {
 

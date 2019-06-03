@@ -9,6 +9,7 @@ parameters:
     locale: en
     articles_directory: '%kernel.project_dir%/web/uploads/articleImages'
     profile_images_directory: '%kernel.project_dir%/web/uploads/profileImages'
+    cover_images_directory: '%kernel.project_dir%/web/uploads/coverImages'
 
 framework:
     #esi: ~

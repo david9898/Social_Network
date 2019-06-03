@@ -21,4 +21,16 @@ class ArticleRepository extends \Doctrine\ORM\EntityRepository
 
         return $qb->getResult();
     }
+
+    public function getArticlesOnUser($authorId)
+    {
+        $dql = 'SELECT a.id, a.description, a.likes, a.dateAdded, a.image FROM AppBundle:Article a WHERE a.authorId = :authorId';
+
+        $query = $this->getEntityManager()
+                    ->createQuery($dql)
+                    ->setParameter('authorId', $authorId)
+                    ->setMaxResults(15);
+
+        return $query->getResult();
+    }
 }

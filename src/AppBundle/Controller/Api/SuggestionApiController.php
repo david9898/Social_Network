@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller\Api;
 
+use AppBundle\Entity\Article;
 use AppBundle\Entity\Suggestion;
 use AppBundle\Entity\User;
 use AppBundle\Service\SuggestionService;
@@ -35,16 +36,15 @@ class SuggestionApiController extends Controller
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        $currentId = $this->getUser()->getId();
+
         $session   = new Session();
+        $csrfToken = $session->get('csrf_token');
+
         $content   = $request->getContent();
         $realData  = json_decode($content, true);
-        $csrfToken = $session->get('csrf_token');
-        $currentId = $session->get('currentId');
-        $friends   = $session->get('friends');
 
-
-        $responce = $this->suggestionService
-                            ->validateSuggestion($currentId, $realData, $csrfToken, $friends);
+        $responce = $this->suggestionService->addSuggestion($realData['csrf_token'], $csrfToken, $currentId, $realData['target_user']);
 
         return $this->JsonResponce($responce);
     }
@@ -60,23 +60,32 @@ class SuggestionApiController extends Controller
 
         $session     = new Session();
         $csrfToken   = $session->get('csrf_token');
+
         $contentJson = $request->getContent();
-        $friends     = $session->get('friends');
         $content     = json_decode($contentJson, true);
+
         $currentId   = $this->getUser()->getId();
 
         $responce = $this->suggestionService
-                            ->acceptSuggestion($currentId, $content, $csrfToken, $friends);
-
-        if ( $responce['status'] === 'success' ) {
-            $friends[] = $responce['newFriend'];
-
-            $session->set('friends', $friends);
-        }
+                            ->acceptSuggestion($content['csrf_token'], $csrfToken, $currentId, $content['userId']);
 
         return $this->JsonResponce($responce);
     }
 
+    /**
+     * @Route("/disableSuggestion/{userId}/{csrfToken}", methods={"GET"})
+     */
+    public function disableSuggestion($userId, $csrfToken)
+    {
+        $session       = new Session();
+
+        $realCsrfToken = $session->get('csrf_token');
+        $myId          = $this->getUser()->getId();
+
+        $responce      = $this->suggestionService->denySuggestion($csrfToken, $realCsrfToken, $myId, $userId);
+
+        return $this->JsonResponce($responce);
+    }
 
     private function JsonResponce($array)
     {

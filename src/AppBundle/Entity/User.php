@@ -64,13 +64,6 @@ class User implements UserInterface
     private $plainPassword;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="isActive", type="boolean")
-     */
-    private $isActive;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="full_name", type="string", length=255)
@@ -92,73 +85,37 @@ class User implements UserInterface
     private $profileImage;
 
     /**
-     * @var User[]
+     * @var string
      *
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User", mappedBy="myFriends")
+     * @ORM\Column(name="cover_image", type="string")
      */
-    private $friendsWithMe;
+    private $coverImage;
 
     /**
-     * @var User[]
+     * @var string
      *
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User", inversedBy="friendsWithMe")
-     * @ORM\JoinTable(
-     *     name="friends",
-     *     joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="friend_user_id", referencedColumnName="id")}
-     * )
+     * @ORM\Column(name="sex", type="string")
      */
-    private $myFriends;
+    private $sex;
 
     /**
-     * @var Suggestion[]
-     *
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Suggestion", mappedBy="suggestUser")
-     */
-    private $sendSuggestions;
-
-    /**
-     * @var Suggestion[]
-     *
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Suggestion", mappedBy="acceptUser")
-     */
-    private $acceptSuggestions;
-
-    /**
-     * @var Message[]
+     * @var array
      *
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Message", mappedBy="sendUser")
      */
     private $sendMessages;
 
     /**
-     * @var Message[]
+     * @var array
      *
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\Message", mappedBy="acceptUser")
      */
     private $acceptMessages;
 
-    /**
-     * @var Role[]
-     *
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Role")
-     * @ORM\JoinTable(name="users_roles",
-     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")}
-     * )
-     */
-    private $roles;
-
     public function __construct()
     {
-        $this->isActive = true;
-        $this->friendsWithMe = new ArrayCollection();
-        $this->myFriends = new ArrayCollection();
-        $this->sendSuggestions = new ArrayCollection();
-        $this->roles = new ArrayCollection();
-        $this->sendMessages = new ArrayCollection();
-        $this->acceptMessages = new ArrayCollection();
-        $this->acceptSuggestions = new ArrayCollection();
+        $this->sendMessages     = new ArrayCollection();
+        $this->acceptMessages   = new ArrayCollection();
     }
 
 
@@ -235,27 +192,6 @@ class User implements UserInterface
     }
 
     /**
-     * @param User[] $friendsWithMe
-     */
-    public function setFriendsWithMe($friendsWithMe)
-    {
-        $this->friendsWithMe = $friendsWithMe;
-    }
-
-    /**
-     * @param User[] $myFriends
-     */
-    public function setMyFriends($myFriends)
-    {
-        $this->myFriends = $myFriends;
-    }
-
-    public function addFriend($id)
-    {
-        $this->getMyFriends()[] = $id;
-    }
-
-    /**
      * Get lastName
      *
      * @return string
@@ -320,40 +256,6 @@ class User implements UserInterface
     }
 
     /**
-     * Get password
-     *
-     * @return string
-     */
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    /**
-     * Set isActive
-     *
-     * @param boolean $isActive
-     *
-     * @return User
-     */
-    public function setIsActive($isActive)
-    {
-        $this->isActive = $isActive;
-
-        return $this;
-    }
-
-    /**
-     * Get isActive
-     *
-     * @return bool
-     */
-    public function getIsActive()
-    {
-        return $this->isActive;
-    }
-
-    /**
      * Set birthDate
      *
      * @param \DateTime $birthDate
@@ -394,138 +296,6 @@ class User implements UserInterface
     }
 
     /**
-     * @return User[]
-     */
-    public function getFriendsWithMe()
-    {
-        return $this->friendsWithMe;
-    }
-
-    /**
-     * @return User[]
-     */
-    public function getMyFriends()
-    {
-        return $this->myFriends;
-    }
-
-    public function getRoles()
-    {
-        /** @var Role[] $roles */
-        $roles = [];
-        foreach ($this->roles as $role) {
-            $roles[] = $role->getName();
-        }
-
-        return $roles;
-    }
-
-    public function getSalt()
-    {
-        return null;
-    }
-
-    public function getUsername()
-    {
-        return $this->email;
-    }
-
-    public function eraseCredentials()
-    {
-        // TODO: Implement eraseCredentials() method.
-    }
-
-
-    /**
-     * @param Role[] $roles
-     */
-    public function addRoles(Role $role)
-    {
-        $roles = $this->getRoles();
-        $roles[] = $role;
-        $this->roles = $roles;
-    }
-
-    public function getAllFriends()
-    {
-        $arr = [];
-
-        foreach ($this->myFriends as $myFriend) {
-            $arr[] = $myFriend;
-        }
-
-        foreach ($this->friendsWithMe as $friend) {
-            $arr[] = $friend;
-        }
-
-        return $arr;
-    }
-
-    /**
-     * @return Message[]
-     */
-    public function getSendMessages()
-    {
-        return $this->sendMessages;
-    }
-
-    /**
-     * @param Message[] $sendMessages
-     */
-    public function setSendMessages($sendMessages)
-    {
-        $this->sendMessages = $sendMessages;
-    }
-
-    /**
-     * @return Message[]
-     */
-    public function getAcceptMessages()
-    {
-        return $this->acceptMessages;
-    }
-
-    /**
-     * @param Message[] $acceptMessages
-     */
-    public function setAcceptMessages($acceptMessages)
-    {
-        $this->acceptMessages = $acceptMessages;
-    }
-
-    /**
-     * @return Suggestion[]
-     */
-    public function getSendSuggestions()
-    {
-        return $this->sendSuggestions;
-    }
-
-    /**
-     * @param Suggestion[] $sendSuggestions
-     */
-    public function setSendSuggestions($sendSuggestions)
-    {
-        $this->sendSuggestions = $sendSuggestions;
-    }
-
-    /**
-     * @return Suggestion[]
-     */
-    public function getAcceptSuggestions()
-    {
-        return $this->acceptSuggestions;
-    }
-
-    /**
-     * @param Suggestion[] $acceptSuggestions
-     */
-    public function setAcceptSuggestions($acceptSuggestions)
-    {
-        $this->acceptSuggestions = $acceptSuggestions;
-    }
-
-    /**
      * @return string
      */
     public function getFullName(): string
@@ -540,6 +310,64 @@ class User implements UserInterface
     {
         $this->fullName = $fullName;
     }
+
+    /**
+     * @return string
+     */
+    public function getCoverImage()
+    {
+        return $this->coverImage;
+    }
+
+    /**
+     * @param string $coverImage
+     */
+    public function setCoverImage($coverImage)
+    {
+        $this->coverImage = $coverImage;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSex()
+    {
+        return $this->sex;
+    }
+
+    /**
+     * @param string $sex
+     */
+    public function setSex($sex)
+    {
+        $this->sex = $sex;
+    }
+
+    public function getRoles()
+    {
+        return [];
+    }
+
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    public function getSalt()
+    {
+        // TODO: Implement getSalt() method.
+    }
+
+    public function getUsername()
+    {
+        return $this->email;
+    }
+
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
+
 
 }
 

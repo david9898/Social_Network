@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block main %}
+
+    <section>
+
+        <div>
+            <img src="/uploads/profileImages/{{ user.profileImage }}" style="width: 350px" />
+        </div>
+
+        <div>
+
+            {% if relation == 'friend' %}
+                <p>Friend</p>
+            {% elseif relation == 'sendToMe' %}
+                <button class="accept_suggestion" id="{{ id }}">Accept</button>
+                <button class="deny_suggestion" id="{{ id }}">Deny</button>
+            {% elseif relation == 'sendFromMe' %}
+                <button class="remove_you_suggestion" id="{{ id }}">Remove your suggestion</button>
+            {% else %}
+                <button class="add_suggestion" id="{{ id }}">Add</button>
+            {% endif %}
+
+        </div>
+
+        <div>
+            <p>First Name: {{ user.firstName }}</p>
+            <p>Last Name: {{ user.lastName }}</p>
+            <p>Birth Day: {{ user.birthDate }}</p>
+            <p>Phone: {{ user.phone }}</p>
+            <p>Email: {{ user.email }}</p>
+        </div>
+
+        <div>
+
+            {% for article in articles %}
+
+                <div style="width: 650px; border: 1px solid black; padding: 10px">
+
+                    <p>{{ article.description }}</p>
+
+                    <img src="/uploads/articleImages/{{ article.image }}" width="650" />
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        <input class="csrf_token" type="hidden" value="{{ csrf_token }}">
+    </section>
+
+{% endblock %}
+
+{% block stylesheets %}
+
+    {{ parent() }}
+
+{% endblock %}
+
+{% block javascripts %}
+
+    {{ parent() }}
+    <script src="{{ asset('js/someProfile.js') }}"></script>
+
+{% endblock %}
+

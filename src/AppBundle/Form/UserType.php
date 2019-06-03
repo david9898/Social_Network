@@ -2,7 +2,9 @@
 
 namespace AppBundle\Form;
 
+use function PHPSTORM_META\type;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -25,14 +27,24 @@ class UserType extends AbstractType
             ->add('phone', TextType::class)
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
-                'first_options' => ['label' => 'Password'],
+                'first_options'  => ['label' => 'Password'],
                 'second_options' => ['label' => 'Repeat Password']
             ])
+            ->add('birthDate')
             ->add('profileImage', FileType::class, [
-                'label' => 'Choose profile image: ',
+                'label'    => 'Choose profile image: ',
                 'required' => false
             ])
-            ->add('birthDate')
+            ->add('coverImage', FileType::class, [
+                'label'    => 'Choose cover image: ',
+                'required' => false
+            ])
+            ->add('sex', ChoiceType::class, [
+                'choices' => [
+                    'Male'   => 'Male',
+                    'Female' => 'Female'
+                ]
+            ])
 
             ->add('register', SubmitType::class);
     }

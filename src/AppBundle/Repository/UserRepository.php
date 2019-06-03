@@ -97,9 +97,20 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         $query = $this->getEntityManager()
                     ->createQuery($dql)
                     ->setFirstResult($firstResult)
-                    ->setMaxResults(20)
+                    ->setMaxResults(21)
                     ->setParameter('name', $name . '%');
 
         return $query->getResult();
+    }
+
+    public function getUser($id)
+    {
+        $dql = 'SELECT u.id, u.profileImage, u.firstName, u.lastName, u.birthDate, u.phone, u.email FROM AppBundle:User u  WHERE u.id = :id';
+
+        $query = $this->getEntityManager()
+                    ->createQuery($dql)
+                    ->setParameter('id', $id);
+
+        return $query->getSingleResult();
     }
 }

@@ -25,7 +25,6 @@ class Chat implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg) {
         $myId = $from->Session->get('currentId');
         $msgContent = json_decode($msg, true);
-        print_r($msgContent);
         switch ( $msgContent['command'] ) {
             case 'addMessage':
                 $this->addMessage($myId, $msgContent, $from);
@@ -197,7 +196,7 @@ class Chat implements MessageComponentInterface
     {
         $name = htmlspecialchars($msg['name']);
 
-        $sql = "SELECT id, profile_image, full_name FROM users WHERE full_name LIKE '" . $name . "%' OR email LIKE '". $name ."%' LIMIT 21";
+        $sql = "SELECT id, profile_image as profileImage, full_name as fullName FROM users WHERE full_name LIKE '" . $name . "%' OR email LIKE '". $name ."%' LIMIT 21";
 
         $query   = $this->pdo->prepare($sql);
         $query->execute([$name]);
@@ -209,20 +208,33 @@ class Chat implements MessageComponentInterface
             $moreRes = 'true';
         }
 
-        $friends           = $conn->Session->get('friends');
-        $suggestionsFromMe = $conn->Session->get('suggestionsFromMe');
-        $suggestionsToMe   = $conn->Session->get('suggestionsToMe');
-
         $arr = [
           'command'           => 'searchFriends',
           'data'              => $data,
-          'friends'           => $friends,
-          'suggestionsFromMe' => $suggestionsFromMe,
-          'suggestionsToMe'   => $suggestionsToMe,
-          'myId'              => $currentId,
-          'moreResults'       => $moreRes
+          'moreResults'       => $moreRes,
+          'myId'              => $currentId
         ];
 
         $conn->send(json_encode($arr));
+    }
+
+    public function handleZmqMessage($msg)
+    {
+        $parseMsg = json_decode($msg, true);
+        $id = (int)$parseMsg['id'];
+
+        switch ( $parseMsg['command'] ) {
+            case 'addSuggestion':
+                if ( isset($this->clients[$id]) ) {
+                    $this->clients[$id]->send($msg);
+                }
+                break;
+
+            case 'acceptSuggestion':
+                if ( isset($this->clients[$id]) ) {
+                    $this->clients[$id]->send($msg);
+                }
+                break;
+        }
     }
 }

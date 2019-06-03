@@ -2,9 +2,12 @@
 
 {% block main %}
 
+    <section>
+
         <div>
             <img src="uploads/profileImages/{{ user.profileImage }}" style="width: 350px" />
         </div>
+
         <div>
             <p>First Name: {{ user.firstName }}</p>
             <p>Last Name: {{ user.lastName }}</p>
@@ -12,6 +15,28 @@
             <p>Phone: {{ user.phone }}</p>
             <p>Email: {{ user.email }}</p>
         </div>
+
+        <div>
+
+            {% for article in articles %}
+
+                <div style="width: 650px; border: 1px solid black; padding: 10px">
+
+                    <p>
+                        <a href="{{ path('edit_article', {'id': article.id}) }}">Edit Article</a>
+                        <a href="{{ path('edit_article', {'id': article.id}) }}">Delete Article</a>
+                    </p>
+
+                    <p>{{ article.description }}</p>
+
+                    <img src="uploads/articleImages/{{ article.image }}" width="650" />
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+    </section>
 
 {% endblock %}
 

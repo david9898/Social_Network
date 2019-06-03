@@ -1,17 +1,15 @@
-let webSocket = new WebSocket('ws://192.168.0.101:9899')
+let webSocket = new WebSocket('ws://192.168.0.100:9899')
+
 $(document).ready(async () => {
-    let myMessageTemplate          = await $.get('TemplatesHbs/myMessage.hbs')
-    let yourMessageTemplate        = await $.get('TemplatesHbs/yourMessage.hbs')
-    let seenTemplate               = await $.get('TemplatesHbs/seenMessage.hbs')
-    let deliveredTemplate          = await $.get('TemplatesHbs/deliveredMessage.hbs')
-    let savedTemplate              = await $.get('TemplatesHbs/savedMessage.hbs')
-    let friendTemplate             = await $.get('TemplatesHbs/friendTemplate.hbs')
-    let searchUserTemplate         = await $.get('TemplatesHbs/searchFriend.hbs')
-    let searchUserFriendTemplate   = await $.get('TemplatesHbs/searchFriendFriend.hbs')
-    let searchUserRefuseTemplate   = await $.get('TemplatesHbs/searchAlreadyFriend.hbs')
-    let searchUserSendToMeTemplate = await $.get('TemplatesHbs/searchSendToMe.hbs')
-    let audio                      = new Audio('sounds/tspt_game_button_04_040.mp3')
-    let addMessageAudio            = new Audio('sounds/musical_keyboard_key_flick_spring_up.mp3')
+    let myMessageTemplate          = await $.get('/TemplatesHbs/myMessage.hbs')
+    let yourMessageTemplate        = await $.get('/TemplatesHbs/yourMessage.hbs')
+    let seenTemplate               = await $.get('/TemplatesHbs/seenMessage.hbs')
+    let deliveredTemplate          = await $.get('/TemplatesHbs/deliveredMessage.hbs')
+    let savedTemplate              = await $.get('/TemplatesHbs/savedMessage.hbs')
+    let friendTemplate             = await $.get('/TemplatesHbs/friendTemplate.hbs')
+    let searchUserTemplate         = await $.get('/TemplatesHbs/searchFriend.hbs')
+    let audio                      = new Audio('/sounds/tspt_game_button_04_040.mp3')
+    let addMessageAudio            = new Audio('/sounds/musical_keyboard_key_flick_spring_up.mp3')
 
     webSocket.onopen = function () {
         console.log('Connection Established')
@@ -47,7 +45,11 @@ $(document).ready(async () => {
                 break
 
             case 'searchFriends':
-                renderSearchFriends(data, searchUserTemplate, searchUserFriendTemplate, searchUserRefuseTemplate, searchUserSendToMeTemplate)
+                renderSearchFriends(data, searchUserTemplate)
+                break
+
+            case 'acceptSuggestion':
+                acceptSuggestion()
                 break
 
         }
@@ -250,43 +252,23 @@ function lastMessageStatus(data, savedTemplate, deliverTemplate, seenTemplate) {
 }
 
 function addSuggestion(audio) {
-    audio.play()
+    // audio.play()
+    console.log('DAVOOOOO')
     return toastr.info('You have new Suggestion')
 }
 
-function renderSearchFriends(message, searchUserTemplate, searchUserFriendTemplate, searchUserRefuseTemplate, searchUserSendToMeTemplate) {
-    let data             = message['data'];
-    let friends          = message['friends']
-    let suggestionFromMe = message['suggestionsFromMe']
-    let suggestionToMe   = message['suggestionsToMe']
-    let myId             = message['myId']
+function renderSearchFriends(message, searchUserTemplate) {
+    let data      = message['data']
+    let currentId = message['myId']
 
     $('.search_friends_results').empty()
     $('.suggestion_for_user').empty()
     $('#show_more').remove()
 
     for (let obj of data) {
-        let currentId = Number(obj['id'])
-
-        if ( currentId === myId ) {
+        if ( obj['id'] == currentId ) {
             continue
-        }
-        else if ( friends.indexOf(currentId) !== -1 ) {
-            let template = Handlebars.compile(searchUserFriendTemplate)
-            let html     = template(obj)
-            $('.search_friends_results').append(html)
-        }
-        else if ( suggestionFromMe.indexOf(currentId) !== -1 ) {
-            let template = Handlebars.compile(searchUserRefuseTemplate)
-            let html     = template(obj)
-            $('.search_friends_results').append(html)
-        }
-        else if ( suggestionToMe.indexOf(currentId) !== -1 ) {
-            let template = Handlebars.compile(searchUserSendToMeTemplate)
-            let html     = template(obj)
-            $('.search_friends_results').append(html)
-        }
-        else {
+        }else {
             let template = Handlebars.compile(searchUserTemplate)
             let html = template(obj)
             $('.search_friends_results').append(html)
@@ -296,4 +278,10 @@ function renderSearchFriends(message, searchUserTemplate, searchUserFriendTempla
     if ( message['moreResults'] === 'true' ) {
         $('.find-friends-user').append('<button id="show_more">show more</button>')
     }
+
+    findFriends(searchUserTemplate)
+    seeUserInDetails()
+}
+function acceptSuggestion() {
+    return toastr.info('Somoone accept you suggestion')
 }

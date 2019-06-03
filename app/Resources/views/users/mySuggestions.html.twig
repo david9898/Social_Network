@@ -5,16 +5,16 @@
 {% block main %}
 
         <section class="find-friends-user" csrf_token="{{ csrfToken }}">
-            {% for suggestion in suggestions %}
+            {% for key, value in suggestions %}
 
-                <div id="{{ suggestion.id }}">
+                <div sendUser="{{ value.0 }}">
                     <div>
-                        <img src="uploads/profileImages/{{ suggestion.profileImage }}" style="width: 350px" />
+                        <img src="uploads/profileImages/{{ value.3 }}" style="width: 350px" />
                     </div>
-                    <p>Email: {{ suggestion.email }}</p>
+                    <p>Name: {{ value.2 }}</p>
                     <div>
-                        <button id="{{ suggestion.id }}" class="accept_suggestion">Accept</button>
-                        <button id="{{ suggestion.id }}" class="deny_suggestion">Deny</button>
+                        <button class="accept_suggestion" id="{{ value.0 }}">Accept</button>
+                        <button class="deny_suggestion" id="{{ value.0 }}">Deny</button>
                     </div>
                 </div>
 
