@@ -2,9 +2,7 @@
 
 namespace AppBundle\Controller\Api;
 
-use AppBundle\Entity\Article;
 use AppBundle\Entity\Suggestion;
-use AppBundle\Entity\User;
 use AppBundle\Service\SuggestionService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -83,6 +81,21 @@ class SuggestionApiController extends Controller
         $myId          = $this->getUser()->getId();
 
         $responce      = $this->suggestionService->denySuggestion($csrfToken, $realCsrfToken, $myId, $userId);
+
+        return $this->JsonResponce($responce);
+    }
+
+    /**
+     * @Route("/removeYourSuggestion/{userId}/{csrfToken}", methods={"GET"})
+     */
+    public function removeYourSuggestion($userId, $csrfToken)
+    {
+        $session       = new Session();
+
+        $realCsrfToken = $session->get('csrf_token');
+        $myId          = $this->getUser()->getId();
+
+        $responce      = $this->suggestionService->removeYourSuggestion($csrfToken, $realCsrfToken, $myId, $userId);
 
         return $this->JsonResponce($responce);
     }

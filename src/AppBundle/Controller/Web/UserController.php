@@ -19,14 +19,14 @@ class UserController extends Controller
     /**
      * @Route("/register", name="user_register")
      */
-    public function register(Request $request, UserPasswordEncoderInterface $encoder, FileUploader $fileUploader, UserService $userService)
+    public function register(Request $request, UserPasswordEncoderInterface $encoder,
+                             FileUploader $fileUploader, UserService $userService)
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ( $form->isSubmitted() && $form->isValid() ) {
-
             $profileImage     = $user->getProfileImage();
             $coverImage       = $user->getCoverImage();
             $profileImageName = $fileUploader->uploadImage($profileImage, $this->getParameter('profile_images_directory'));
@@ -88,23 +88,24 @@ class UserController extends Controller
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $myId      = $this->getUser()->getId();
-        $session   = new Session();
-        $csrfToken = bin2hex(random_bytes(32));
+        $myId       = $this->getUser()->getId();
+        $session    = new Session();
+        $csrfToken  = bin2hex(random_bytes(32));
         $session->set('csrf_token', $csrfToken);
 
-        $userData = $userService->getUserData($id);
+        $userData  = $userService->getUserData($id);
 
-        $relation = $userService->checkForUserRelation($myId, $id);
+        $relations = $userService->checkForUserRelation($myId, $id);
 
-        $articles = $this->getDoctrine()
+        $articles  = $this->getDoctrine()
                         ->getRepository(Article::class)
                         ->getArticlesOnUser($id);
 
         return $this->render('users/someProfile.html.twig', [
             'user'       => $userData,
             'articles'   => $articles,
-            'relation'   => $relation,
+            'relation'   => $relations['friendShip'],
+            'follow'     => $relations['follow'],
             'csrf_token' => $csrfToken,
             'id'         => $id
         ]);

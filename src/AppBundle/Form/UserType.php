@@ -5,6 +5,7 @@ namespace AppBundle\Form;
 use function PHPSTORM_META\type;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -21,14 +22,37 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('email', TextType::class)
-            ->add('firstName', TextType::class)
-            ->add('lastName', TextType::class)
-            ->add('phone', TextType::class)
+            ->add('email', EmailType::class, [
+                'label' => true,
+                'label_attr' => ['for' => 'email', 'class' => 'sr-only'],
+                'attr'  => ['placeholder' => 'Email']
+            ])
+            ->add('firstName', TextType::class, [
+                'label' => true,
+                'label_attr' => ['for' => 'First Name', 'class' => 'sr-only'],
+                'attr'  => ['placeholder' => 'First Name']
+            ])
+            ->add('lastName', TextType::class, [
+                'label' => true,
+                'label_attr' => ['for' => 'Last Name', 'class' => 'sr-only'],
+                'attr'  => ['placeholder' => 'Last Name']
+            ])
+            ->add('phone', TextType::class, [
+                'label' => true,
+                'label_attr' => ['for' => 'phone', 'class' => 'sr-only'],
+                'attr'  => ['placeholder' => 'Phone']
+            ])
             ->add('plainPassword', RepeatedType::class, [
-                'type' => PasswordType::class,
-                'first_options'  => ['label' => 'Password'],
-                'second_options' => ['label' => 'Repeat Password']
+                'type'  => PasswordType::class,
+                'label' => false,
+                'first_options'  => [
+                    'label' => false,
+                    'attr'  => ['placeholder' => 'Password']
+                ],
+                'second_options' => [
+                    'label' => false,
+                    'attr'  => ['placeholder' => 'Repeat password']
+                ]
             ])
             ->add('birthDate')
             ->add('profileImage', FileType::class, [
@@ -44,9 +68,8 @@ class UserType extends AbstractType
                     'Male'   => 'Male',
                     'Female' => 'Female'
                 ]
-            ])
+            ]);
 
-            ->add('register', SubmitType::class);
     }
 
     /**

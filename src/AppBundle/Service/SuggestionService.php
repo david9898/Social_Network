@@ -229,4 +229,40 @@ class SuggestionService
         }
     }
 
+    public function removeYourSuggestion($csrfToken, $realCsrfToken, $myId, $otherId)
+    {
+        if ( $csrfToken === $realCsrfToken ) {
+
+            $pipeline = $this->redis->pipeline();
+
+            $pipeline->zrank('suggestionTo: ' . $otherId, $myId);
+            $pipeline->zrank('suggestionFrom: ' . $myId, $otherId);
+            $pipeline->hget('user: ' . $otherId, 'suggestionTo');
+            $pipeline->hget('user: ' . $myId, 'suggestionFrom');
+
+            $exPipeline = $pipeline->execute();
+
+            if ( $exPipeline[0] === null ) {
+                return ['status' => 'error', 'description' => 'Invalid suggestion!!!'];
+            }
+
+            if ( $exPipeline[1] === null ) {
+                return ['status' => 'error', 'description' => 'Invalid suggestion!!!'];
+            }
+
+            $pipeline = $this->redis->pipeline();
+
+            $pipeline->zrem('suggestionTo: ' . $otherId, $myId);
+            $pipeline->zrem('suggestionFrom: ' . $myId, $otherId);
+            $pipeline->hset('user: ' . $otherId, 'suggestionTo',$exPipeline[2] - 1);
+            $pipeline->hset('user: ' . $myId, 'suggestionFrom', $exPipeline[3] - 1);
+
+            $pipeline->execute();
+
+            return ['status' => 'success'];
+
+        }else {
+            return ['status' => 'error', 'description' => 'Wrong csrfToken!!!'];
+        }
+    }
 }

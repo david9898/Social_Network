@@ -1,10 +1,69 @@
 {% extends 'base.html.twig' %}
 
 {% block main %}
-    {{ form(form) }}
+
+    <div class="register_container">
+        <div class="regiser_description">
+            <h3>DAVOSSS</h3>
+            <p>DAVOSSS is a global social platform where people are connected at every time!</p>
+            <img src="uploads/templatesImages/loginImage.jpg">
+        </div>
+
+        <div class="form_register">
+
+        {{ form_start(form) }}
+            {% for child in form.children|keys %}
+
+            {% if child == 'register' %}
+                    {{ form_widget(attribute(form.children,child)) }}
+
+            {% else %}
+                <div class="col-sm-15 my-1">
+                    {% if 'token' not in form_label(attribute(form.children,child)) %}
+                        {{form_label(attribute(form.children,child)) }}
+
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                {% if child == 'email' %}
+                                    <div class="input-group-text"><i class="fas fa-at"></i></div>
+                                {% elseif child == 'firstName' %}
+                                    <div class="input-group-text"><i class="fas fa-user"></i></div>
+                                {% elseif child == 'lastName' %}
+                                    <div class="input-group-text"><i class="fas fa-user-friends"></i></div>
+                                {% elseif child == 'phone' %}
+                                    <div class="input-group-text"><i class="fas fa-mobile"></i></div>
+                                {% elseif child == 'plainPassword' %}
+                                    <div class="input-group-text"><i class="fas fa-lock"></i></div>
+                                {% elseif child == 'birthDate' %}
+                                    <div class="input-group-text"><i class="fas fa-birthday-cake"></i></div>
+                                {% elseif child == 'profileImage' %}
+                                    <div class="input-group-text"><i class="far fa-image"></i></div>
+                                {% elseif child == 'coverImage' %}
+                                    <div class="input-group-text"><i class="fas fa-images"></i></div>
+                                {% endif %}
+                            </div>
+                            {{ form_widget(attribute(form.children,child)) }}
+                        </div>
+
+                    {% endif %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="register_btn_container">
+                <input type="submit" class="register_btn" value="Register">
+            </div>
+        {{ form_end(form) }}
+    </div>
+
 {% endblock %}
 
 {% block stylesheets %}
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="{{ asset('css/register.css') }}" />
 
 {% endblock %}
 

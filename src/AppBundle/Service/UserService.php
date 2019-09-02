@@ -60,23 +60,34 @@ class UserService
 
     public function checkForUserRelation($myId, $otherId)
     {
+        $responce = [];
+
         $pipeline = $this->redis->pipeline();
 
-        $pipeline->zrange('friends: ' . $myId, 0, -1);
-        $pipeline->zrange('suggestionTo: ' . $myId, 0, -1);
-        $pipeline->zrange('suggestionFrom: ' . $myId, 0, -1);
+        $pipeline->zrank('friends: ' . $myId, $otherId);
+        $pipeline->zrank('suggestionTo: ' . $myId, $otherId);
+        $pipeline->zrank('suggestionFrom: ' . $myId, $otherId);
+        $pipeline->zrank('follow: ' . $myId, $otherId);
 
         $responce = $pipeline->execute();
 
-        if ( in_array($otherId, $responce[0]) ) {
-            return 'friend';
-        }else if ( in_array($otherId, $responce[1]) ) {
-            return 'sendToMe';
-        }else if ( in_array($otherId, $responce[2]) ) {
-            return 'sendFromMe';
+        if ( $responce[0] !== null ) {
+            $responce['friendShip'] = 'friend';
+        }else if ( $responce[1] !== null ) {
+            $responce['friendShip'] = 'sendToMe';
+        }else if ( $responce[2] !== null ) {
+            $responce['friendShip'] = 'sendFromMe';
         }else {
-            return 'add';
+            $responce['friendShip'] = 'add';
         }
+
+        if ( $responce[3] !== null ) {
+            $responce['follow'] = true;
+        }else {
+            $responce['follow'] = false;
+        }
+
+        return $responce;
     }
 
     public function registerUser($id, $email, $firstName, $lastName, $phone, $birthDay, $profileImage, $fullName, $coverImage)

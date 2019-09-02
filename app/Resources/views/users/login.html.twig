@@ -2,17 +2,47 @@
 
 {% block main %}
 
-    <form name="authenticate" action="{{ path('security_login') }}" method="POST">
-        <input type="text" name="_username">
-        <input type="text" name="_password">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+    <div class="login_container">
 
-        <input type="submit" value="login">
-    </form>
+        <div class="login_description">
+            <h3>DAVOSSS</h3>
+            <p>DAVOSSS is a global social platform where people are connected at every time!</p>
+        </div>
+        
+        <form name="authenticate" class="login_form" action="{{ path('security_login') }}" method="POST">
+            <div class="col-sm-15 my-1  ">
+                <label class="sr-only" for="email">Email</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-user"></i></div>
+                    </div>
+                    <input type="text" class="form-control" name="_username" id="email" placeholder="Email">
+                </div>
+            </div>
+            <div class="col-sm-15 my-1">
+                <label class="sr-only" for="password">Password</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-lock"></i></div>
+                    </div>
+                    <input type="password" class="form-control" name="_password" id="password" placeholder="Password">
+                </div>
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <input type="submit" value="Sign in" class="login_button">
+
+        </form>
+    </div>
 
 {% endblock %}
 
 {% block stylesheets %}
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}" />
 
 {% endblock %}
 

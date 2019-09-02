@@ -95,7 +95,7 @@ function refuceSuggestion() {
         let csrfToken = $('.csrf_token').val()
 
         $.ajax({
-            url:  '/api/disableSuggestion/' + id + '/' + csrfToken,
+            url:  '/api/removeYourSuggestion/' + id + '/' + csrfToken,
             type: 'GET',
         }).then((res) => {
             let respoce = JSON.parse(res)

@@ -12,14 +12,19 @@ class Chat implements MessageComponentInterface
     protected $clients;
 
     public function __construct(\PDO $pdo) {
-        $this->pdo = $pdo;
-        $this->clients = [];
+        $this->pdo        = $pdo;
+        $this->clients    = [];
     }
 
     public function onOpen(ConnectionInterface $conn) {
         // Store the new connection to send messages to later
-        $this->clients[$conn->Session->get('currentId')] = $conn;
+        $id = $conn->Session->get('currentId');
+        $this->clients[$id]['conn']                = $conn;
+        $this->clients[$id]['message_subscribers'] = [];
+        $this->clients[$id]['subscribe']           = null;
         echo "New connection! {$conn->Session->get('currentId')}\n";
+        $querystring = $conn->httpRequest->getUri()->getQuery();
+        print_r($querystring);
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
@@ -36,10 +41,6 @@ class Chat implements MessageComponentInterface
 
             case 'seeMessageBetweenUsers':
                 $this->seeMessagesBetweenUsers($myId, $msgContent);
-                break;
-
-            case 'seeCertainMessage':
-                $this->getCertainMessage($myId, $msgContent);
                 break;
 
             case 'addSuggestion':
@@ -67,16 +68,16 @@ class Chat implements MessageComponentInterface
     }
 
     private function addMessage($myId, $msgContent, $conn) {
-        $id                     = $this->insertMessage($myId, $msgContent);
-        $randomId               = htmlspecialchars($msgContent['id']);
-        $msgContent['id']       = $id;
-        $msgContent['randomId'] = $randomId;
+        $id                          = $this->insertMessage($myId, $msgContent);
+        $randomId                    = htmlspecialchars($msgContent['id']);
+        $msgContent['id']            = $id;
+        $msgContent['randomId']      = $randomId;
         $msgContent['messageStatus'] = 'onlySaved';
         if ( isset($this->clients[$msgContent['acceptUser']]) ) {
             $msgContent['messageStatus'] = 'delivered';
             $msgContent['command']   = 'addMessage';
             $msgContent['sendUser']  = $myId;
-            $this->clients[$msgContent['acceptUser']]->send(json_encode($msgContent));
+            $this->clients[$msgContent['acceptUser']]['conn']->send(json_encode($msgContent));
         }
         $msgContent['command'] = 'savedMsg';
         $conn->send(json_encode($msgContent));
@@ -119,7 +120,7 @@ class Chat implements MessageComponentInterface
                 'acceptUser' => $acceptUser
             ];
 
-            $this->clients[$sendUser]->send(json_encode($arr));
+            $this->clients[$sendUser]['conn']->send(json_encode($arr));
         }
     }
 
@@ -128,56 +129,10 @@ class Chat implements MessageComponentInterface
         $otherId = htmlspecialchars($msg['otherId']);
 
         if ( isset($this->clients[$otherId]) ) {
-            $this->clients[$otherId]->send(json_encode([
+            $this->clients[$otherId]['conn']->send(json_encode([
                 'command' => 'seeMessageBetweenUsers',
                 'otherId' => $myId
             ]));
-        }
-    }
-
-    private function getCertainMessage($myId, $msg)
-    {
-        $msgId       = htmlspecialchars($msg['id']);
-        $currentUser = htmlspecialchars($msg['currentIdOnMessenger']);
-
-        $sql = 'SELECT * FROM messages WHERE id = ?';
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$msgId]);
-        $messageInfo = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        if ( $messageInfo['is_delivered'] == 1 ) {
-            if ( $messageInfo['is_seen'] == 1 ) {
-                if ( isset($this->clients[$myId]) ) {
-                    $arr = [
-                        'command'   => 'seeCertainMessage',
-                        'otherId'   => $currentUser,
-                        'msgStatus' => 'seen'
-                    ];
-
-                    $this->clients[$myId]->send(json_encode($arr));
-                }
-            }else {
-                if ( isset($this->clients[$myId]) ) {
-                    $arr = [
-                        'command'   => 'seeCertainMessage',
-                        'otherId'   => $currentUser,
-                        'msgStatus' => 'delivered'
-                    ];
-
-                    $this->clients[$myId]->send(json_encode($arr));
-                }
-            }
-        }else {
-            if ( isset($this->clients[$myId]) ) {
-                $arr = [
-                    'command'   => 'seeCertainMessage',
-                    'otherId'   => $currentUser,
-                    'msgStatus' => 'saved'
-                ];
-
-                $this->clients[$myId]->send(json_encode($arr));
-            }
         }
     }
 
@@ -186,7 +141,7 @@ class Chat implements MessageComponentInterface
         $targetId = htmlspecialchars($msg['otherId']);
 
         if ( isset($this->clients[$targetId]) ) {
-            $this->clients[$targetId]->send(json_encode([
+            $this->clients[$targetId]['conn']->send(json_encode([
                 'command' => 'addSuggestion'
             ]));
         }
@@ -226,13 +181,13 @@ class Chat implements MessageComponentInterface
         switch ( $parseMsg['command'] ) {
             case 'addSuggestion':
                 if ( isset($this->clients[$id]) ) {
-                    $this->clients[$id]->send($msg);
+                    $this->clients[$id]['conn']->send($msg);
                 }
                 break;
 
             case 'acceptSuggestion':
                 if ( isset($this->clients[$id]) ) {
-                    $this->clients[$id]->send($msg);
+                    $this->clients[$id]['conn']->send($msg);
                 }
                 break;
         }

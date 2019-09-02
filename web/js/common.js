@@ -1,4 +1,12 @@
-let webSocket = new WebSocket('ws://192.168.0.100:9899')
+let path      = window.location.pathname
+let splitPath = path.split('/')
+
+let webSocket
+if ( splitPath.length === 3 ) {
+    webSocket = new WebSocket('ws://192.168.0.102:9899/' + splitPath[1] + '/' + splitPath[2])
+}else {
+    webSocket = new WebSocket('ws://192.168.0.102:9899/' + splitPath[1])
+}
 
 $(document).ready(async () => {
     let myMessageTemplate          = await $.get('/TemplatesHbs/myMessage.hbs')
@@ -30,14 +38,6 @@ $(document).ready(async () => {
 
             case 'seenMessage':
                 seenMessage(data, seenTemplate)
-                break
-            
-            case 'seeMessageBetweenUsers':
-                seeMessageBetweenUsers(data, seenTemplate)
-                break
-
-            case 'seeCertainMessage':
-                lastMessageStatus(data, savedTemplate, deliveredTemplate, seenTemplate)
                 break
 
             case 'addSuggestion':
@@ -131,14 +131,6 @@ function addMessage(webSocket, msg, yourMessageTemplate, audio, friendTemplate, 
             $('.real_text_message_container').append(html)
             $('.message_text').animate({scrollTop: scrollHeight})
 
-            let obj = {
-                'command': 'seenMessage',
-                'id': msgId,
-                'sendUser': sendUser,
-                'acceptUser': acceptUser
-            }
-
-            webSocket.send(JSON.stringify(obj))
         } else {
             let fullName = $('.friends_container #' + sendUser + ' .full_name').text()
             let img = $('.friends_container #' + sendUser + ' img').attr('src')
@@ -188,68 +180,6 @@ function seenMessage(message, seenTemplate) {
     }
 }
 
-function seeMessageBetweenUsers(data, seenTemplate) {
-    let url = window.location.href
-    let splitArr = url.split('/')
-
-    if ( splitArr[3] === 'messages' ) {
-        let allMessages = $('.real_text_message_container').children().toArray()
-        if ( allMessages.length > 0 ) {
-            let lastElementClass = $(allMessages[allMessages.length - 1]).attr('class')
-            if ( lastElementClass === 'message_notification_in_container' ) {
-                let lastClass = $(allMessages[allMessages.length - 2]).attr('class')
-                if (lastClass === 'div_message_mine') {
-                    let currentUser = $('.current_user').attr('acceptuser')
-
-                    if (data['otherId'] == currentUser) {
-                        $('.message_notification_in_container').remove()
-                        let template = Handlebars.compile(seenTemplate)
-                        let html = template()
-                        $('.real_text_message_container').append(html)
-                    }
-                }
-            }else {
-                if (lastElementClass === 'div_message_mine') {
-                    let currentUser = $('.current_user').attr('acceptuser')
-
-                    if (data['otherId'] == currentUser) {
-                        $('.message_notification_in_container').remove()
-                        let template = Handlebars.compile(seenTemplate)
-                        let html = template()
-                        $('.real_text_message_container').append(html)
-                    }
-                }
-            }
-        }
-    }
-}
-
-function lastMessageStatus(data, savedTemplate, deliverTemplate, seenTemplate) {
-    let url = window.location.href
-    let splitArr = url.split('/')
-
-    if ( splitArr[3] === 'messages' ) {
-        let messageStatus = data['msgStatus']
-
-        if ( data['otherId'] == $('.current_user').attr('acceptuser') ) {
-            if ( messageStatus === 'saved') {
-                let template = Handlebars.compile(savedTemplate)
-                let html     = template()
-                $('.real_text_message_container').append(html)
-            }
-            else if ( messageStatus === 'delivered') {
-                let template = Handlebars.compile(deliverTemplate)
-                let html     = template()
-                $('.real_text_message_container').append(html)
-            }
-            else {
-                let template = Handlebars.compile(seenTemplate)
-                let html     = template()
-                $('.real_text_message_container').append(html)
-            }
-        }
-    }
-}
 
 function addSuggestion(audio) {
     // audio.play()
