@@ -3,31 +3,73 @@
 {% extends 'base.html.twig' %}
 
 {% block main %}
-    <section>
+
+    <section id="show_articles">
         {% for article in articles %}
 
-            <div style="width: 650px; border: 1px solid black; padding: 10px">
+            <div class="article_info">
 
-                {% if article.authorId.id == app.user.id %}
-                    <p><a href="{{ path('edit_article', {'id': article.id}) }}">Edit Article</a></p>
-                {% endif %}
+                <div class="article_user_info">
+                    <img src="{{ asset('uploads/profileImages/0a6a00edea2ac99563b3b020d7a718b1.png') }}"/>
+                    <div>
+                        <span>David Ivanov</span>
+                        <span>8 min</span>
+                    </div>
+                </div>
 
                 <p>{{ article.description }}</p>
 
-                <img src="uploads/articleImages/{{ article.image }}" width="650" />
+                <img src="uploads/articleImages/{{ article.image }}" />
 
+                <hr>
+
+                <div class="article_info_footer">
+                    <p><i class="fas fa-heart"></i> Like
+                        <div class="article_likes">
+                            <div>
+                                <img src="{{ asset('uploads/articleImages/0f6429cfcc6fad8bedd3f8887ff30d16.jpeg') }}"/>
+                            </div>
+                            <div>
+                                <img src="{{ asset('uploads/articleImages/3bbedd53e75d1bcbfffaee8d4dbbf39d.jpeg') }}"/>
+                            </div>
+                            <div>
+                                <img src="{{ asset('uploads/articleImages/7e78df627602e1bf8ec61aea07469ce2.jpeg') }}"/>
+                            </div>
+                            <div>
+                                <img src="{{ asset('uploads/articleImages/14cf972192502295f1e5a00db0ac2a75.jpeg') }}"/>
+                            </div>
+                            <div>
+                                25
+                            </div>
+                        </div>
+                    </p>
+                    <p><i class="fas fa-comment"></i> Comment</p>
+                </div>
             </div>
 
         {% endfor %}
     </section>
+
+    <input type="hidden" value="{{ csrf_token }}" id="csrf_token">
+{% endblock %}
+
+{% block aside %}
+
+    <aside>
+
+    </aside>
+
 {% endblock %}
 
 {% block stylesheets %}
 
     {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
 
 {% endblock %}
 
 {% block javascripts %}
+
     {{ parent() }}
+
 {% endblock %}

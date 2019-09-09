@@ -4,6 +4,7 @@ namespace AppBundle\Controller\Api;
 
 use AppBundle\Entity\Suggestion;
 use AppBundle\Entity\User;
+use AppBundle\Repository\UserRepository;
 use AppBundle\Service\UserService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -43,6 +44,41 @@ class UserApiController extends Controller
         $service = $this->userService->getMoreFriends($realCsrfToken, $list, $name, $csrfToken, $myId);
 
         return $this->JsonResponce($service);
+    }
+
+    /**
+     * @Route("/searchFriends/{csrfToken}/{name}")
+     * @Method("GET")
+     * @param $csrfToken
+     * @param $name
+     */
+    public function searchFriends($csrfToken, $name)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $session       = new Session();
+        $realCsrfToken = $session->get('csrf_token');
+
+        if ( $csrfToken === $realCsrfToken ) {
+            $users = $this->getDoctrine()
+                            ->getRepository(User::class)
+                            ->searchUsers($name);
+
+            $responce = [
+                'status' => 'success',
+                'users'  => $users
+            ];
+
+            return $this->json($responce);
+        }else {
+            $responce = [
+                'status'      => 'error',
+                'description' => 'Wrong token!'
+            ];
+
+            return $this->JsonResponce($responce);
+        }
+
     }
 
     private function JsonResponce($array)

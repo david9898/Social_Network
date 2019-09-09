@@ -92,7 +92,8 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     {
         $firstResult = $list * 20 - 20;
 
-        $dql = 'SELECT u.id, u.fullName, u.profileImage FROM AppBundle:User u WHERE u.fullName LIKE :name OR u.email LIKE :name';
+        $dql = 'SELECT u.id, u.fullName, u.profileImage FROM AppBundle:User u 
+                WHERE u.fullName LIKE :name OR u.email LIKE :name';
 
         $query = $this->getEntityManager()
                     ->createQuery($dql)
@@ -112,5 +113,18 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                     ->setParameter('id', $id);
 
         return $query->getSingleResult();
+    }
+
+    public function searchUsers($name)
+    {
+        $dql = 'SELECT u.id, u.profileImage, u.fullName FROM AppBundle:User u
+                 WHERE u.email LIKE :name OR u.fullName LIKE :name';
+
+        $query = $this->getEntityManager()
+                    ->createQuery($dql)
+                    ->setParameter('name', '%' . $name . '%')
+                    ->setMaxResults(6);
+
+        return $query->getResult();
     }
 }

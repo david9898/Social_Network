@@ -55,8 +55,6 @@ class StartWebSocketAndZmqCommand extends ContainerAwareCommand
         $pull->bind('tcp://127.0.0.1:5555');
         $pull->on('message', array($vid, 'handleZmqMessage'));
 
-//        $webSock = new Server('tcp://0.0.0.0:9899', $loop);
-
         $session = new SessionProvider(
             new WsServer(
                 $vid
@@ -64,17 +62,9 @@ class StartWebSocketAndZmqCommand extends ContainerAwareCommand
             $pdoProvider
         );
 
-//        $webServer = new IoServer(
-//            new HttpServer(
-//                $session
-//            ),
-//            $webSock
-//        );
-
-        $server = new App("192.168.0.102", 9899, '0.0.0.0');
+        $server = new App("192.168.0.100", 9899, '0.0.0.0');
         $server->route('/{something}', $session, array('*'));
         $server->route('/{something}/{otherThing}', $session, array('*'));
         $server->run();
-//        $loop->run();
     }
 }

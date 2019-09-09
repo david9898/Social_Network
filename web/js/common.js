@@ -3,9 +3,9 @@ let splitPath = path.split('/')
 
 let webSocket
 if ( splitPath.length === 3 ) {
-    webSocket = new WebSocket('ws://192.168.0.102:9899/' + splitPath[1] + '/' + splitPath[2])
+    webSocket = new WebSocket('ws://192.168.0.100:9899/' + splitPath[1] + '/' + splitPath[2])
 }else {
-    webSocket = new WebSocket('ws://192.168.0.102:9899/' + splitPath[1])
+    webSocket = new WebSocket('ws://192.168.0.100:9899/' + splitPath[1])
 }
 
 $(document).ready(async () => {
@@ -60,7 +60,7 @@ $(document).ready(async () => {
     }
 
     sendMessage(webSocket, myMessageTemplate, audio)
-
+    searchFriends()
 })
 
 function sendMessage(webSocket, myMessageTemplate, audio) {
@@ -187,31 +187,47 @@ function addSuggestion(audio) {
     return toastr.info('You have new Suggestion')
 }
 
-function renderSearchFriends(message, searchUserTemplate) {
-    let data      = message['data']
-    let currentId = message['myId']
-
-    $('.search_friends_results').empty()
-    $('.suggestion_for_user').empty()
-    $('#show_more').remove()
-
-    for (let obj of data) {
-        if ( obj['id'] == currentId ) {
-            continue
-        }else {
-            let template = Handlebars.compile(searchUserTemplate)
-            let html = template(obj)
-            $('.search_friends_results').append(html)
-        }
-    }
-
-    if ( message['moreResults'] === 'true' ) {
-        $('.find-friends-user').append('<button id="show_more">show more</button>')
-    }
-
-    findFriends(searchUserTemplate)
-    seeUserInDetails()
-}
 function acceptSuggestion() {
     return toastr.info('Somoone accept you suggestion')
+}
+
+function renderSearchFriends(message, searchUserTemplate) {
+
+}
+
+function searchFriends() {
+    let csrfToken = $('#csrf_token').val()
+
+    let options = {
+        url: function(phrase) {
+            return "api/searchFriends/" + csrfToken + "/" + phrase;
+        },
+
+        getValue: "fullName",
+
+        listLocation: "users",
+
+        requestDelay: 500,
+
+        template: {
+            type: "custom",
+            method: function(value, item) {
+                return `<a href="/profile/${item['id']}">
+                            <span id="${item['id']}">
+                                <img width="30" height="30" src="uploads/profileImages/${item['profileImage']}" />
+                                ${item['fullName']}
+                             </span>
+                         </a>`;
+            }
+        },
+
+        list: {
+            onClickEvent: function () {
+                console.log($(this))
+            }
+        }
+
+    };
+
+    $("#search_friends").easyAutocomplete(options);
 }
