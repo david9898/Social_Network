@@ -29,24 +29,23 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
-    # add more services, or override services that need manual wiring
-    # AppBundle\Service\ExampleService:
-    #     arguments:
-    #         $someArgument: 'some_value'
 
-#    Redis:
-#        class: Redis
-#        calls:
-#            - method: connect
-#              arguments:
-#                  - '127.0.0.1'
-#                  - '6379'
-#            # If you need key prefix
-#            # - method: setOption
-#            #   arguments:
-#            #       - !php/const Redis::OPT_PREFIX
-#            #       - 'my_prefix'
-#
-#        Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
-#            arguments:
-#                - '@Redis'
+    AppBundle\Service\RedisClientCreator:
+        arguments:
+            $scheme: '%redis_scheme%'
+            $host:   '%redis_host%'
+            $port:   '%redis_port%'
+
+
+    AppBundle\Service\ZmqSocketConnection:
+        arguments:
+            $zmqScheme: '%zmq_scheme%'
+            $zmqHost:   '%zmq_host%'
+            $zmqPort:   '%zmq_port%'
+
+
+    AppBundle\Service\ArticleService:
+        arguments:
+            $doctrine:           '@doctrine.orm.default_entity_manager'
+            $redisClientCreator: '@AppBundle\Service\RedisClientCreator'
+            $articleDirectory:   '%articles_directory%'

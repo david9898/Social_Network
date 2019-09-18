@@ -49,16 +49,4 @@ class MessageController extends Controller
         ]);
     }
 
-    private function mergeArrays(array $arr)
-    {
-        $array = [];
-
-        foreach ($arr as $item) {
-            foreach ($item as $value) {
-                $array[] = $value;
-            }
-        }
-
-        return $array;
-    }
 }

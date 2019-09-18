@@ -3,9 +3,9 @@ let splitPath = path.split('/')
 
 let webSocket
 if ( splitPath.length === 3 ) {
-    webSocket = new WebSocket('ws://192.168.0.100:9899/' + splitPath[1] + '/' + splitPath[2])
+    webSocket = new WebSocket('ws://localhost:9899/' + splitPath[1] + '/' + splitPath[2])
 }else {
-    webSocket = new WebSocket('ws://192.168.0.100:9899/' + splitPath[1])
+    webSocket = new WebSocket('ws://localhost:9899/' + splitPath[1])
 }
 
 $(document).ready(async () => {

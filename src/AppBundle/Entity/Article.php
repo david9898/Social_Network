@@ -30,16 +30,20 @@ class Article
     private $description;
 
     /**
-     * @var \DateTime
+     * @var integer
      *
-     * @ORM\Column(name="dateAdded", type="date")
+     * @ORM\Column(name="date_added", type="integer")
      */
     private $dateAdded;
 
     /**
-     * @var int
+     * @var ArrayCollection
      *
-     * @ORM\Column(name="likes", type="integer")
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User")
+     * @ORM\JoinTable(name="articles_likes",
+     *     joinColumns={@ORM\JoinColumn(name="article_id", referencedColumnName="id")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
+     *     )
      */
     private $likes;
 
@@ -56,29 +60,38 @@ class Article
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
      * @ORM\JoinColumn(name="author_id", referencedColumnName="id")
      */
-    private $authorId;
+    private $author;
+
+    /**
+     * @var Comment
+     *
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Comment", mappedBy="article")
+     *
+     */
+    private $comments;
 
     public function __construct()
     {
-        $this->dateAdded = new \DateTime();
-        $this->likes = 0;
+        $this->likes     = new ArrayCollection();
+        $this->comments  = new ArrayCollection();
+        $this->dateAdded = time();
     }
 
 
     /**
      * @return User
      */
-    public function getAuthorId()
+    public function getAuthor()
     {
-        return $this->authorId;
+        return $this->author;
     }
 
     /**
      * @param User $authorId
      */
-    public function setAuthorId($authorId)
+    public function setAuthor($author)
     {
-        $this->authorId = $authorId;
+        $this->author = $author;
     }
 
     /**
@@ -185,6 +198,15 @@ class Article
     public function getImage()
     {
         return $this->image;
+    }
+
+    public function addLike(User $user)
+    {
+        if ( $this->likes->contains($user) ) {
+            return;
+        }
+
+        $this->likes[] = $user;
     }
 }
 

@@ -1,0 +1,25 @@
+<div class="article_info" id="{{ 5 }}">
+
+    <div class="article_user_info">
+        <img src="uploads/profileImages/{{ 0 }}"/>
+        <div>
+            <span>{{ 1 }}</span>
+            <span>{{# makeDate }} {{/ makeDate }}</span>
+        </div>
+    </div>
+
+    <p>{{ 3 }}</p>
+
+    <img src="uploads/articleImages/{{ 6 }}" />
+
+    <hr>
+
+    <div class="article_info_footer">
+        {{#ifCond 1 8 }}
+            <p><i class="fas fa-heart liked"></i>Likes <span class="count_likes count">{{ 2 }}</span></p>
+        {{ else }}
+            <p><i class="fas fa-heart"></i>Likes <span class="count_likes count">{{ 2 }}</span></p>
+        {{/ifCond }}
+        <p><i class="fas fa-comment"></i> Comments <span class="count_comments count">{{ 7 }}</span></p>
+    </div>
+</div>

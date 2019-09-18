@@ -4,7 +4,9 @@ namespace AppBundle\Controller\Web;
 
 use AppBundle\Entity\Article;
 use AppBundle\Form\ArticleType;
+use AppBundle\Service\ArticleService;
 use AppBundle\Service\FileUploader;
+use AppBundle\Service\RedisClientCreator;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,26 +20,22 @@ class ArticleController extends Controller
     /**
      * @Route("/addArticle", name="article_add")
      */
-    public function addArticle(Request $request, FileUploader $fileUploader)
+    public function addArticle(Request $request, ArticleService $articleService, FileUploader $fileUploader)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $article = new Article();
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
+        $currentUser = $this->getUser();
 
         if ( $form->isSubmitted() && $form->isValid() ) {
 
-            $file = $article->getImage();
+            $article   = $articleService->addArticleToDatabase($article, $fileUploader, $currentUser);
 
-            $fileName = $fileUploader->uploadImage($file, $this->getParameter('articles_directory'));
+            $followers = $articleService->deliverArticleToFollowers($currentUser->getId(), $article->getId());
 
-            $article->setImage($fileName);
-            $article->setAuthorId($this->getUser());
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($article);
-            $em->flush();
+            $articleService->addArticleToRedis($article, $followers);
 
             $status = [
                 'status' => 'success'
@@ -61,7 +59,7 @@ class ArticleController extends Controller
         /** @var Article $article */
         $article = $this->getDoctrine()->getRepository(Article::class)->find($id);
         $roles = $this->getUser()->getRoles();
-        if ( !in_array('ROLE_ADMIN', $roles) && $this->getUser()->getId() != $article->getAuthorId()->getId() ) {
+        if ( !in_array('ROLE_ADMIN', $roles) && $this->getUser()->getId() != $article->getAuthor()->getId() ) {
             throw new AccessDeniedHttpException('You don`t have access here!!!');
         }
         $oldImageName = $article->getImage();

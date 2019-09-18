@@ -23,6 +23,7 @@ function addSuggestion() {
                 'Content-Type': 'application/json'
             }
         }).then((res) => {
+            console.log(res)
             let respoce = JSON.parse(res)
             if ( respoce['status'] == 'success' ) {
                 $(this).css('display', 'none')

@@ -4,8 +4,6 @@ namespace AppBundle\Command;
 
 use AppBundle\Ratchet\Chat;
 use Ratchet\App;
-use Ratchet\Http\HttpServer;
-use Ratchet\Server\IoServer;
 use Ratchet\Session\SessionProvider;
 use Ratchet\WebSocket\WsServer;
 use React\EventLoop\Factory;
@@ -51,9 +49,18 @@ class StartWebSocketAndZmqCommand extends ContainerAwareCommand
         $vid = new Chat($pdo);
 
         $context = new Context($loop);
-        $pull = $context->getSocket(\ZMQ::SOCKET_PULL);
+        $pull = $context->getSocket(\ZMQ::SOCKET_PULL, 'Chat');
         $pull->bind('tcp://127.0.0.1:5555');
         $pull->on('message', array($vid, 'handleZmqMessage'));
+
+//        $a        = new \ZMQContext(1);
+//        $b         = $a->getSocket(\ZMQ::SOCKET_PUSH, 'Chat');
+//        $b->connect("tcp://127.0.0.1:5555");
+//        $b->send(json_encode(['fsda' => 'dadsa']));
+
+//        var_dump($socket = new \ZMQSocket(new \ZMQContext(), \ZMQ::SOCKET_REQ, "Chat"));
+//        var_dump($socket->connect('tcp://127.0.0.1:5555'));
+//        var_dump($socket->send("Hello from chat!")->recv());
 
         $session = new SessionProvider(
             new WsServer(
@@ -62,9 +69,11 @@ class StartWebSocketAndZmqCommand extends ContainerAwareCommand
             $pdoProvider
         );
 
-        $server = new App("192.168.0.100", 9899, '0.0.0.0');
+        $server = new App("localhost", 9899, '0.0.0.0');
         $server->route('/{something}', $session, array('*'));
         $server->route('/{something}/{otherThing}', $session, array('*'));
         $server->run();
+
+        $loop->run();
     }
 }

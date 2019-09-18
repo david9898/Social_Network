@@ -13,16 +13,10 @@ class UserService
     private $doctrine;
     private $redis;
 
-    public function __construct(EntityManagerInterface $doctrine)
+    public function __construct(EntityManagerInterface $doctrine, RedisClientCreator $redisClientCreator)
     {
         $this->doctrine = $doctrine;
-
-        $this->redis = new Client([
-            'scheme'   => 'tcp',
-            'host'     => '127.0.0.1',
-            'port'     => 6379,
-            'async'    => true
-        ]);
+        $this->redis    = $redisClientCreator->getRedisClient();
     }
 
     public function getMoreFriends($realCsrfToken, $list, $name, $csrfToken, $currentId)
@@ -94,6 +88,7 @@ class UserService
     {
         $pipeline = $this->redis->pipeline();
 
+        $pipeline->hset('user: ' . $id, 'id', $id);
         $pipeline->hset('user: ' . $id, 'email', $email);
         $pipeline->hset('user: ' . $id, 'firstName', $firstName);
         $pipeline->hset('user: ' . $id, 'lastName', $lastName);

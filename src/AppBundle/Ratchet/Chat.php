@@ -177,7 +177,7 @@ class Chat implements MessageComponentInterface
     {
         $parseMsg = json_decode($msg, true);
         $id = (int)$parseMsg['id'];
-
+        print_r('davoo');
         switch ( $parseMsg['command'] ) {
             case 'addSuggestion':
                 if ( isset($this->clients[$id]) ) {

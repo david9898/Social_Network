@@ -19,6 +19,7 @@ $(document).ready(() => {
                 xhr.send(formData)
                 xhr.onload = function () {
                     if ( xhr.status === 200 ) {
+                        console.log(xhr.responseText)
                         let data = JSON.parse(xhr.responseText)
 
                         if ( data['status'] === 'success' ) {

@@ -2,20 +2,15 @@
 
 namespace AppBundle\Service;
 
-use Predis\Client;
-
 class SuggestionService
 {
     private $redis;
+    private $zmqSocket;
 
-    public function __construct()
+    public function __construct(RedisClientCreator $redisClientCreator, ZmqSocketConnection $zmqSocket)
     {
-        $this->redis = new Client([
-            'scheme'   => 'tcp',
-            'host'     => '127.0.0.1',
-            'port'     => 6379,
-            'async'    => true
-        ]);
+        $this->redis     = $redisClientCreator->getRedisClient();
+        $this->zmqSocket = $zmqSocket;
     }
 
     public function getSuggestionToMe($id)
@@ -101,10 +96,12 @@ class SuggestionService
             $arr['id']      = $otherId;
             $arr['command'] = 'acceptSuggestion';
 
-            $context        = new \ZMQContext(1);
-            $socket         = $context->getSocket(\ZMQ::SOCKET_PUSH);
-            $socket->connect("tcp://127.0.0.1:5555");
-            $socket->send(json_encode($arr));
+//            $context        = new \ZMQContext(1);
+//            $socket         = $context->getSocket(\ZMQ::SOCKET_PUSH);
+//            $socket->connect("tcp://127.0.0.1:5555");
+//            $socket->send(json_encode($arr));
+
+            $this->zmqSocket->sendToWebSocket($arr);
 
             return ['status' => 'success'];
         }else {
@@ -181,12 +178,15 @@ class SuggestionService
                 $this->redis->rpop('notifications: ' . $otherId);
             }
 
-            $arr['id'] = $otherId;
+            $arr['id']      = $otherId;
             $arr['command'] = 'addSuggestion';
-            $context   = new \ZMQContext(1);
-            $socket    = $context->getSocket(\ZMQ::SOCKET_PUSH);
-            $socket->connect("tcp://127.0.0.1:5555");
+
+            $context        = new \ZMQContext(1);
+            $socket         = $context->getSocket(\ZMQ::SOCKET_PUSH, 'Chat');
+            $socket->connect("tcp://localhost:5555");
             $socket->send(json_encode($arr));
+
+//            $this->zmqSocket->sendToWebSocket($arr);
 
             return ['status' => 'success'];
         }else {

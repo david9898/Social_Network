@@ -1,4 +1,3 @@
-{# @var articles \AppBundle\Entity\Article[] #}
 {# @var users \AppBundle\Entity\User[] #}
 {% extends 'base.html.twig' %}
 
@@ -7,43 +6,29 @@
     <section id="show_articles">
         {% for article in articles %}
 
-            <div class="article_info">
+            <div class="article_info" id="{{ article.5 }}">
 
                 <div class="article_user_info">
-                    <img src="{{ asset('uploads/profileImages/0a6a00edea2ac99563b3b020d7a718b1.png') }}"/>
+                    <img src="uploads/profileImages/{{ article.0 }}"/>
                     <div>
-                        <span>David Ivanov</span>
-                        <span>8 min</span>
+                        <span>{{ article.1 }}</span>
+                        <span>{{ article.4|date('m/d/Y') }}</span>
                     </div>
                 </div>
 
-                <p>{{ article.description }}</p>
+                <p>{{ article.3 }}</p>
 
-                <img src="uploads/articleImages/{{ article.image }}" />
+                <img src="uploads/articleImages/{{ article.6 }}" />
 
                 <hr>
 
                 <div class="article_info_footer">
-                    <p><i class="fas fa-heart"></i> Like
-                        <div class="article_likes">
-                            <div>
-                                <img src="{{ asset('uploads/articleImages/0f6429cfcc6fad8bedd3f8887ff30d16.jpeg') }}"/>
-                            </div>
-                            <div>
-                                <img src="{{ asset('uploads/articleImages/3bbedd53e75d1bcbfffaee8d4dbbf39d.jpeg') }}"/>
-                            </div>
-                            <div>
-                                <img src="{{ asset('uploads/articleImages/7e78df627602e1bf8ec61aea07469ce2.jpeg') }}"/>
-                            </div>
-                            <div>
-                                <img src="{{ asset('uploads/articleImages/14cf972192502295f1e5a00db0ac2a75.jpeg') }}"/>
-                            </div>
-                            <div>
-                                25
-                            </div>
-                        </div>
-                    </p>
-                    <p><i class="fas fa-comment"></i> Comment</p>
+                    {% if article.8 == true %}
+                        <p><i class="fas fa-heart liked"></i>Likes <span class="count_likes count">{{ article.2 }}</span></p>
+                    {% else %}
+                        <p><i class="fas fa-heart"></i>Likes <span class="count_likes count">{{ article.2 }}</span></p>
+                    {% endif %}
+                    <p><i class="fas fa-comment"></i> Comments <span class="count_comments count">{{ article.7 }}</span></p>
                 </div>
             </div>
 
@@ -71,5 +56,6 @@
 {% block javascripts %}
 
     {{ parent() }}
+    <script src="{{ asset('js/home.js') }}"></script>
 
 {% endblock %}

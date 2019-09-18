@@ -67,40 +67,17 @@ main #show_articles {
     justify-content: space-between;
     margin-top: 15px;
     color: #B2B2B2;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 .article_info_footer p {
     font-size: 16px;
 }
 
-.article_info_footer p:hover {
+.article_info_footer p i:hover {
     color: #E44D3A;
     cursor: pointer;
     font-size: 16px;
-}
-
-.article_info .article_likes {
-    display: flex;
-    margin-left: 0rem;
-    position: relative;
-    right: 40px;
-}
-
-.article_info .article_likes img {
-    width: 35px;
-    height: 35px;
-    border-radius: 100%;
-    border: 1px solid white;
-}
-
-.article_info .article_likes div:nth-child(1) {
-    z-index: 0;
-}
-
-.article_info .article_likes div:nth-child(2) {
-    border-radius: 100%;
-    z-index: 1;
-    position: relative;
-    right: 27px;
 }
 
 .article_info hr {
@@ -108,29 +85,18 @@ main #show_articles {
     margin-bottom: 30px;
 }
 
-.article_info .article_likes div:nth-child(3) {
-    z-index: 2;
-    border-radius: 100%;
-    position: relative;
-    right: 49px;
-}
-
-.article_info .article_likes div:nth-child(4) {
-    z-index: 3;
-    position: relative;
-    right: 72px;
-    border-radius: 100%;
-}
-
-.article_info .article_likes div:nth-child(5) {
-    z-index: 4;
-    position: relative;
-    right: 94px;
-    padding-top: 5px;
-    color: white;
-    width: 35px;
-    height: 35px;
-    text-align: center;
-    border-radius: 100%;
+.count {
     background-color: #E44D3A;
+    padding: 7px;
+    border-radius: 50%;
+    color: white;
+    margin-left: 10px;
+}
+
+i {
+    margin-right: 10px;
+}
+
+.liked {
+    color: #E44D3A;
 }
