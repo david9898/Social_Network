@@ -6,7 +6,6 @@ use AppBundle\Entity\Article;
 use AppBundle\Entity\Suggestion;
 use AppBundle\Service\ArticleService;
 use AppBundle\Service\RedisClientCreator;
-use Hoa\Iterator\Limit;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
@@ -50,7 +49,7 @@ class HomeController extends Controller
 
         return $this->render('home/showArticles.html.twig', [
             'articles'   => $home,
-            'csrf_token' => $csrfToken
+            'csrf_token' => $csrfToken,
         ]);
     }
 }

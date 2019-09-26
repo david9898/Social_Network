@@ -33,4 +33,15 @@ class ArticleRepository extends \Doctrine\ORM\EntityRepository
 
         return $query->getResult();
     }
+
+    public function getArticleLikes($articleId)
+    {
+        $dql = 'SELECT u.fullName, u.profileImage FROM AppBundle:article a LEFT JOIN a.likes u WHERE a.id = :articleId';
+
+        $query = $this->getEntityManager()
+                    ->createQuery($dql)
+                    ->setParameter('articleId', $articleId);
+
+        return $query->getResult();
+    }
 }

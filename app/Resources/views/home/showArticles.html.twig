@@ -4,6 +4,22 @@
 {% block main %}
 
     <section id="show_articles">
+        <div class="likes white-popup mfp-hide" id="likes">
+            <div>Likes</div>
+            <hr />
+            <div class="all_likes">
+
+            </div>
+        </div>
+
+        <div class="comments white-popup mfp-hide" id="comments">
+            <div>Comments</div>
+            <hr />
+            <div class="all_comments">
+
+            </div>
+        </div>
+
         {% for article in articles %}
 
             <div class="article_info" id="{{ article.5 }}">
@@ -24,11 +40,11 @@
 
                 <div class="article_info_footer">
                     {% if article.8 == true %}
-                        <p><i class="fas fa-heart liked"></i>Likes <span class="count_likes count">{{ article.2 }}</span></p>
+                        <p><i class="fas fa-heart liked"></i>Likes <a href="#likes" class="likes"><span class="count_likes count">{{ article.2 }}</span></a></p>
                     {% else %}
-                        <p><i class="fas fa-heart"></i>Likes <span class="count_likes count">{{ article.2 }}</span></p>
+                        <p><i class="fas fa-heart"></i>Likes <a href="#likes" class="likes"><span class="count_likes count">{{ article.2 }}</span></a></p>
                     {% endif %}
-                    <p><i class="fas fa-comment"></i> Comments <span class="count_comments count">{{ article.7 }}</span></p>
+                    <p><i class="fas fa-comment"></i> <a href="#comments" class="comments">Comments <span class="count_comments count">{{ article.7 }}</span></a>  </p>
                 </div>
             </div>
 
@@ -49,6 +65,7 @@
 {% block stylesheets %}
 
     {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('node_modules/magnific-popup/dist/magnific-popup.css') }}">
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
 
 {% endblock %}
@@ -56,6 +73,7 @@
 {% block javascripts %}
 
     {{ parent() }}
+    <script src="{{ asset('node_modules/magnific-popup/dist/jquery.magnific-popup.min.js') }}"></script>
     <script src="{{ asset('js/home.js') }}"></script>
 
 {% endblock %}

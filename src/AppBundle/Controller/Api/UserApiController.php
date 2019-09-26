@@ -78,7 +78,6 @@ class UserApiController extends Controller
 
             return $this->JsonResponce($responce);
         }
-
     }
 
     private function JsonResponce($array)

@@ -93,6 +93,25 @@ class ArticleApiController extends Controller
         ]);
     }
 
+    /**
+     * @Route("/getArticleLikes/{articleId}/{csrfToken}")
+     */
+    public function getArticleLIkes($articleId, $csrfToken, ArticleService $articleService)
+    {
+        $session = new Session();
+
+        if ( $session->get('csrf_token') === $csrfToken ) {
+            $responce = $articleService->seeWhoIsLiked($articleId);
+
+            return $this->JsonResponce($responce);
+        }else {
+            return [
+                'status'      => 'error',
+                'description' => 'Wrong token!'
+            ];
+        }
+    }
+
     private function JsonResponce($array)
     {
         $serializer = $this->container->get('jms_serializer');

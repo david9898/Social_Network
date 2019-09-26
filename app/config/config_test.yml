@@ -5,6 +5,9 @@ framework:
     test: ~
     session:
         storage_id: session.storage.mock_file
+#        handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
+#        save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
+
     profiler:
         collect: false
 

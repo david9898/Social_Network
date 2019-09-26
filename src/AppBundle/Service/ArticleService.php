@@ -161,4 +161,36 @@ class ArticleService
         return $this->redis->zcount('likes: ' . $articleId, PHP_INT_MIN, PHP_INT_MAX);
     }
 
+
+    public function seeWhoIsLiked($articleId)
+    {
+        $articleInRedis = $this->redis->hexists('article: ' . $articleId, 'likes');
+
+        if ( $articleInRedis !== 0 ) {
+            $idsLiked = $this->redis->zrange('likes: ' . $articleId, 0, -1);
+
+            $pipeline = $this->redis->pipeline();
+
+            foreach ($idsLiked as $userId) {
+                $pipeline->hmget('user: '. $userId, ['fullName', 'profileImage']);
+            }
+
+            return [
+                'status' => 'success',
+                'users'  => $pipeline->execute()
+            ];
+
+        }else {
+            $usersLiked = $this->doctrine
+                                ->getRepository(Article::class)
+                                ->getArticleLikes($articleId);
+
+            return [
+                'status' => 'success',
+                'users'  => $usersLiked
+            ];
+        }
+
+    }
+
 }

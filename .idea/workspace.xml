@@ -2,31 +2,24 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c00cfd99-1ccc-4a1a-adcb-ec44315b8b98" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/AppBundle/Service/ArticleService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AppBundle/Service/RedisClientCreator.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AppBundle/Service/ZmqSocketConnection.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/TemplatesHbs/articleTemplate.hbs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/js/home.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/AppBundle/Controller/Web/HomeTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/untitled.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/untitled.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Resources/views/home/showArticles.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/app/Resources/views/home/showArticles.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/config/services.yml" beforeDir="false" afterPath="$PROJECT_DIR$/app/config/services.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/symfony_requirements" beforeDir="false" afterPath="$PROJECT_DIR$/bin/symfony_requirements" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Command/StartWebSocketAndZmqCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Command/StartWebSocketAndZmqCommand.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/config/config_test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/app/config/config_test.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AppBundle/Controller/Api/ArticleApiController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Controller/Api/ArticleApiController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Controller/Web/ArticleController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Controller/Web/ArticleController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Controller/Api/UserApiController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Controller/Api/UserApiController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AppBundle/Controller/Web/HomeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Controller/Web/HomeController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Controller/Web/MessageController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Controller/Web/MessageController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Entity/Article.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Entity/Article.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Ratchet/Chat.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Ratchet/Chat.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AppBundle/Repository/ArticleRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Repository/ArticleRepository.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Service/SuggestionService.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Service/SuggestionService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Service/UserService.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Service/UserService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Service/ArticleService.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Service/ArticleService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/AppBundle/Controller/Api/SuggestionApiControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/AppBundle/Controller/DefaultControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/TemplatesHbs/articleTemplate.hbs" beforeDir="false" afterPath="$PROJECT_DIR$/web/TemplatesHbs/articleTemplate.hbs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/css/home.css" beforeDir="false" afterPath="$PROJECT_DIR$/web/css/home.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/js/addArticle.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/addArticle.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/js/common.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/common.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/js/someProfile.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/someProfile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/js/home.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/home.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/package-lock.json" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -153,6 +146,13 @@
       <path value="$PROJECT_DIR$/vendor/psr/simple-cache" />
       <path value="$PROJECT_DIR$/vendor/guzzlehttp/promises" />
       <path value="$PROJECT_DIR$/vendor/incenteev/composer-parameter-handler" />
+      <path value="$PROJECT_DIR$/vendor/bin/.phpunit" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php73" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-client" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php72" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/vendor/symfony/mime" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-client-contracts" />
     </include_path>
   </component>
   <component name="ProjectId" id="1QbLWr4GqtXYky96jV4tOZ1MliD" />
@@ -165,7 +165,7 @@
     <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="/var/www/html/checkFiles" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -190,6 +190,17 @@
       </list>
     </option>
   </component>
+  <component name="RunManager">
+    <configuration name="HomeTest.testAdd" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="Tests\AppBundle\Controller\Web\HomeTest" file="$PROJECT_DIR$/tests/AppBundle/Controller/Web/HomeTest.php" method="testAdd" scope="Method" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="PHPUnit.HomeTest.testAdd" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -211,7 +222,11 @@
       <workItem from="1568448434321" duration="13364000" />
       <workItem from="1568538650619" duration="11444000" />
       <workItem from="1568617721836" duration="20819000" />
-      <workItem from="1568702733977" duration="7417000" />
+      <workItem from="1568702733977" duration="19316000" />
+      <workItem from="1568884186240" duration="3418000" />
+      <workItem from="1568971836035" duration="14623000" />
+      <workItem from="1569184679243" duration="1752000" />
+      <workItem from="1569234879377" duration="10125000" />
     </task>
     <servers />
   </component>

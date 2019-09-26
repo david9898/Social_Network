@@ -100,3 +100,49 @@ i {
 .liked {
     color: #E44D3A;
 }
+
+.count_likes:hover {
+    background-color: white;
+    color: #E44D3A;
+    cursor: pointer;
+}
+
+.likes {
+    margin: auto;
+    background-color: white;
+    padding: 10px;
+    width: 500px;
+    height: 600px;
+}
+
+.likes img {
+    border-radius: 100%;
+}
+
+.likes p:hover {
+    background-color: #F2F2F2;
+    cursor: pointer;
+}
+
+.likes p {
+    padding: 10px 0px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.likes div {
+    text-align: center;
+    font-size: 20px;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.likes .all_likes {
+    overflow: scroll;
+    overflow-x: hidden;
+    height: 87%;
+
+}
+
+.likes img {
+    width: 50px;
+}

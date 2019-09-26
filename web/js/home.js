@@ -6,6 +6,9 @@ $(document).ready(async function () {
     addHandlebarsFunctionality()
     getMoreArticles(articleTemplate)
     addLike()
+    magnificPopUpLikes()
+    magnificPopUpComments()
+    seeWhoIsLiked()
 })
 
 let isActiveEvent = true
@@ -37,7 +40,7 @@ function getMoreArticles(articleTemplate) {
 
                         for (let article of responce['articles']) {
                             if ( article[8] === 0 ) {
-                                article.pop()
+                                continue
                             }
 
                             let template = Handlebars.compile(articleTemplate)
@@ -45,6 +48,8 @@ function getMoreArticles(articleTemplate) {
                             $('#show_articles').append(html)
                         }
                         addLike()
+                        magnificPopUpLikes()
+                        seeWhoIsLiked()
 
                         let currentArticleList = Number(sessionStorage.getItem('listArticles'))
                         currentArticleList++
@@ -116,6 +121,40 @@ function addHandlebarsFunctionality() {
 
         return [month, day, year].join('/');
 
+    })
+}
+
+function magnificPopUpLikes() {
+    $('.likes').magnificPopup({
+        type: 'inline',
+        midClick: true
+    })
+}
+
+function magnificPopUpComments() {
+    $('.comments').magnificPopup({
+        type: 'inline',
+        midClick: true
+    })
+}
+
+function seeWhoIsLiked() {
+    $('.count_likes').on('click', function () {
+        let csrfToken = $('#csrf_token').val()
+        let articleId = $(this).parent().parent().parent().parent().attr('id')
+
+        $.ajax({
+            type: 'GET',
+            url:  'getArticleLikes/' + articleId + '/' + csrfToken
+        }).then((res) => {
+            let responce = JSON.parse(res)
+
+            $('.all_likes').empty()
+
+            for (let i = 0; i < responce['users'].length; i++) {
+                $('.all_likes').append(`<p><img src="uploads/profileImages/${responce['users'][i][1]}" /> ${responce['users'][i][0]}</p>`)
+            }
+        })
     })
 }
 
